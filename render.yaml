@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: papaya-peptides
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: PUBLIC_URL
+        sync: false
+      - key: PAYMENT_PROVIDER
+        value: coinbase
+      - key: COINBASE_API_KEY
+        sync: false
+      - key: COINBASE_WEBHOOK_SECRET
+        sync: false
+      - key: ETRANSFER_EMAIL
+        sync: false
+      - key: ETRANSFER_NAME
+        value: Papaya Peptides
+      - key: ETRANSFER_AUTODEPOSIT
+        value: "true"
