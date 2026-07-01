@@ -1,0 +1,43 @@
+# ── Copy this file to ".env" and fill in your own values ──────────────────────
+# (On Render/Railway you paste these as "Environment Variables" instead of a file.)
+
+# A long random password that protects your admin dashboard (/admin). Make one up.
+ADMIN_KEY=put-a-long-random-password-here
+
+# Your public site address once deployed (used for payment redirect links).
+PUBLIC_URL=https://your-app.onrender.com
+
+# ── Crypto payments ───────────────────────────────────────────────────────────
+# Choose ONE provider: "coinbase" or "nowpayments"
+PAYMENT_PROVIDER=coinbase
+
+# If using Coinbase Commerce (commerce.coinbase.com):
+COINBASE_API_KEY=
+COINBASE_WEBHOOK_SECRET=
+
+# If using NOWPayments (nowpayments.io):
+NOWPAYMENTS_API_KEY=
+NOWPAYMENTS_IPN_SECRET=
+
+# ── Interac e-Transfer (manual) ───────────────────────────────────────────────
+# The email customers send their e-Transfer to, and the name on the account.
+ETRANSFER_EMAIL=payments@yourdomain.com
+ETRANSFER_NAME=Papaya Peptides
+# Auto-deposit on your bank email? (true = no security question needed — recommended)
+ETRANSFER_AUTODEPOSIT=true
+# Only if auto-deposit is OFF: a fixed security question + answer you tell customers to use
+ETRANSFER_QUESTION=
+ETRANSFER_ANSWER=
+
+# ── Email confirmations (optional — leave blank to skip emails) ───────────────
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM=Papaya Peptides <orders@papayapeps.com>
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+STORE_NAME=Papaya Peptides
+CURRENCY=CAD
+# CORS_ORIGIN=https://www.papayapeps.com   # only needed if the storefront is on a different domain
