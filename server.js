@@ -4,6 +4,7 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import { createHash } from 'crypto';
 import { fileURLToPath } from 'url';
 import { db } from './db.js';
 import { PRODUCTS, byId, lineTotal, shippingFor, discountRate, taxFor } from './products.js';
@@ -64,12 +65,18 @@ async function markPaid(no, provider) {
   console.log(`[paid] ${no} via ${provider}`);
 }
 
-// Report paid, referred orders to the affiliate agent so commission is credited.
+// Report EVERY paid order to the affiliate agent. Orders with a referral code
+// credit that affiliate's first-order rate; orders without one still carry a
+// privacy-safe customer hash so the agent can credit lifetime reorder commission
+// to whichever affiliate originally referred that customer.
 // Fire-and-forget: a down agent never blocks payment processing.
 async function notifyAffiliateAgent(o) {
   if (!process.env.AGENT_URL || !process.env.AGENT_WEBHOOK_SECRET) return;
-  if (!o || !o.referral) return;
+  if (!o) return;
   try {
+    const customerHash = createHash('sha256')
+      .update(String(o.customer?.email || '').trim().toLowerCase())
+      .digest('hex').slice(0, 32);
     const r = await fetch(`${process.env.AGENT_URL}/webhooks/order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -77,10 +84,12 @@ async function notifyAffiliateAgent(o) {
         secret: process.env.AGENT_WEBHOOK_SECRET,
         order_id: o.orderNo,
         total_usd: o.total,          // store charges CAD; agent ledger is CAD throughout
-        code: o.referral
+        code: o.referral || '',
+        customer_hash: customerHash
       })
     });
-    console.log(`[affiliate] ${o.orderNo} referral=${o.referral} attributed=${(await r.json()).attributed}`);
+    const out = await r.json();
+    console.log(`[affiliate] ${o.orderNo} referral=${o.referral || '-'} attributed=${out.attributed} kind=${out.kind || '-'}`);
   } catch (e) { console.error('[affiliate webhook]', e.message); }
 }
 
