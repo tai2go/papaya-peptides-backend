@@ -60,7 +60,28 @@ async function markPaid(no, provider) {
   if (!o || o.status === 'paid' || o.status === 'processing' || o.status === 'shipped' || o.status === 'delivered') return;
   db.update(no, { status: 'paid', payment: { ...(o.payment || {}), provider, paidAt: Date.now() } });
   try { await emailPaid(db.get(no)); } catch {}
+  notifyAffiliateAgent(db.get(no)).catch(() => {});
   console.log(`[paid] ${no} via ${provider}`);
+}
+
+// Report paid, referred orders to the affiliate agent so commission is credited.
+// Fire-and-forget: a down agent never blocks payment processing.
+async function notifyAffiliateAgent(o) {
+  if (!process.env.AGENT_URL || !process.env.AGENT_WEBHOOK_SECRET) return;
+  if (!o || !o.referral) return;
+  try {
+    const r = await fetch(`${process.env.AGENT_URL}/webhooks/order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        secret: process.env.AGENT_WEBHOOK_SECRET,
+        order_id: o.orderNo,
+        total_usd: o.total,          // store charges CAD; agent ledger is CAD throughout
+        code: o.referral
+      })
+    });
+    console.log(`[affiliate] ${o.orderNo} referral=${o.referral} attributed=${(await r.json()).attributed}`);
+  } catch (e) { console.error('[affiliate webhook]', e.message); }
 }
 
 function publicOrder(o) {

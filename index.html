@@ -1138,16 +1138,17 @@ function drawSyringe(units, perMl){
 
 
 /* ---------------- SUPPORT PAGES ---------------- */
+const AFFILIATE_JOIN_URL='https://papaya-affiliate-agent.onrender.com/join';
 function renderAffiliates(){
   app.innerHTML = `
   <div class="info-wrap">
     <div class="info-head"><h1>Affiliate Program</h1><p>Partner with Papaya Peptides and earn on every researcher you send our way. Transparent products, dependable fulfilment, and a commission that respects your audience.</p></div>
-    <div><span class="mut up" style="font-size:10px;letter-spacing:.5px">Commission</span><div class="aff-stat">12%</div><div class="mut" style="font-size:11px">on every referred order, throughout your cookie window</div></div>
+    <div><span class="mut up" style="font-size:10px;letter-spacing:.5px">Commission</span><div class="aff-stat">18%</div><div class="mut" style="font-size:11px">on every referred order, throughout your cookie window</div></div>
     <div class="aff-sec"><h2>How it works</h2>
       <div class="aff-steps">
-        <div class="aff-step"><div class="num">01</div><h3>Apply</h3><p>Tell us where your audience lives. Approvals are usually same-week, and it costs nothing to join.</p></div>
+        <div class="aff-step"><div class="num">01</div><h3>Sign up</h3><p>Instant approval — your tracking link and discount code are generated the moment you join.</p></div>
         <div class="aff-step"><div class="num">02</div><h3>Share your link</h3><p>Get a unique referral link and code, then drop it into content, newsletters or a pinned bio — wherever your readers already are.</p></div>
-        <div class="aff-step"><div class="num">03</div><h3>Earn 12%</h3><p>Every order through your link earns 12%. Watch clicks and conversions, with payouts sent monthly.</p></div>
+        <div class="aff-step"><div class="num">03</div><h3>Earn 18%</h3><p>Every order through your link earns 18%. Watch clicks and conversions live, with payouts sent monthly.</p></div>
       </div>
     </div>
     <div class="aff-sec"><h2>Why partner with us</h2>
@@ -1157,12 +1158,10 @@ function renderAffiliates(){
         <div class="aff-step"><h3>Reliable payouts</h3><p>Transparent tracking and on-time monthly payments. No clawbacks, no games — what you earn, you keep.</p></div>
       </div>
     </div>
-    <div class="aff-sec"><h2>Apply now</h2>
+    <div class="aff-sec"><h2>Join now</h2>
       <div id="aff_form" class="info-form">
-        <div class="field-c"><label>Name</label><input id="af_name"></div>
-        <div class="field-c"><label>Email</label><input id="af_email" type="email"></div>
-        <div class="field-c"><label>Website / Channel</label><input id="af_url"></div>
-        <button class="btn" style="width:100%;margin-top:6px" onclick="submitAffiliate()">Apply to the Program</button>
+        <p class="mut" style="font-size:13px;margin:0 0 10px">Signup takes under a minute — your tracking link, discount code and live stats page are generated instantly. Open to Canada-based creators.</p>
+        <a class="btn" style="width:100%;margin-top:6px;display:block;text-align:center;box-sizing:border-box" href="${AFFILIATE_JOIN_URL}" target="_blank" rel="noopener">Join the Program →</a>
       </div>
     </div>
     <div class="info-ruo"><b>Research Use Only.</b> Products are supplied for laboratory research only and are not for human or animal consumption.</div>
