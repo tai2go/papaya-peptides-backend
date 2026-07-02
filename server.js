@@ -227,5 +227,7 @@ app.post('/api/admin/orders/:orderNo/tracking', adminOnly, (req, res) => {
 // storefront + admin are self-contained HTML served from the project root
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// SPA routing: any non-API, non-file path serves the storefront (client router takes over)
+app.get(/^\/(?!api\/)[^.]*$/, (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 app.listen(PORT, () => console.log(`Papaya Peptides backend running on :${PORT}  (payments: ${PAYMENT_PROVIDER})`));

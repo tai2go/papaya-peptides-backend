@@ -233,8 +233,10 @@ footer{background:#fff;color:#000;margin-top:84px;padding:54px 26px 40px;}
 .mobile-menu{position:fixed;top:0;left:0;bottom:0;width:300px;max-width:84vw;background:#fff;z-index:1200;transform:translateX(-100%);transition:transform .26s;padding:22px;overflow-y:auto;}
 .mobile-menu.open{transform:none;}
 .mobile-menu .mm-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;}
-.mobile-menu a{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.6px;padding:14px 0;cursor:pointer;}
-.mobile-menu a+a{border-top:1px solid #f1f1f1;}
+.mobile-menu a{display:block;font-size:12.5px;text-transform:uppercase;letter-spacing:.6px;padding:12px 0;cursor:pointer;}
+.mobile-menu a+a{border-top:1px solid #f4f4f4;}
+.mobile-menu .mm-sec{margin-bottom:26px;}
+.mobile-menu .mm-label{font-size:10px;text-transform:uppercase;letter-spacing:1.8px;color:#9a9a9a;margin-bottom:4px;font-weight:600;}
 
 /* ---------- Toast ---------- */
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:#000;color:#fff;padding:13px 24px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;z-index:1500;opacity:0;visibility:hidden;transition:.22s;}
@@ -709,21 +711,30 @@ select.unit{appearance:none;-webkit-appearance:none;-moz-appearance:none;text-al
 
 <aside class="mobile-menu" id="mobileMenu">
   <div class="mm-head"><span class="wm up" style="font-size:13px;letter-spacing:2px;">Menu</span><span class="drawer-close" onclick="closeAll()">✕</span></div>
-  <a onclick="go('shop','all')">Shop All</a>
-  <a onclick="go('shop','Muscle Growth')">Muscle Growth</a>
-  <a onclick="go('shop','Recovery')">Recovery</a>
-  <a onclick="go('shop','Weight Loss')">Weight Loss</a>
-  <a onclick="go('shop','Anti-Aging')">Anti-Aging</a>
-  <a onclick="go('shop','Cognitive')">Cognitive</a>
-  <a onclick="go('shop','Supplies')">Supplies</a>
-  <a onclick="go('calc')">Peptide Calculator</a>
-  <a onclick="go('faq')">FAQ</a>
-  <a onclick="go('lab')">Lab Results</a>
-  <a onclick="go('contact')">Contact</a>
-  <a onclick="go('guides')">Peptide Guides</a>
-  <a onclick="go('track')">Track Your Package</a>
-  <a onclick="go('refer')">Refer a Friend</a>
-  <a onclick="go('affiliates')">Affiliates</a>
+  <div class="mm-sec">
+    <div class="mm-label">Shop</div>
+    <a onclick="go('shop','all')">Shop All</a>
+    <a onclick="go('shop','Muscle Growth')">Muscle Growth</a>
+    <a onclick="go('shop','Recovery')">Recovery</a>
+    <a onclick="go('shop','Weight Loss')">Weight Loss</a>
+    <a onclick="go('shop','Anti-Aging')">Anti-Aging</a>
+    <a onclick="go('shop','Cognitive')">Cognitive</a>
+    <a onclick="go('shop','Supplies')">Supplies</a>
+  </div>
+  <div class="mm-sec">
+    <div class="mm-label">Help &amp; Tools</div>
+    <a onclick="go('calc')">Peptide Calculator</a>
+    <a onclick="go('guides')">Peptide Guides</a>
+    <a onclick="go('track')">Track Your Package</a>
+    <a onclick="go('lab')">Lab Results</a>
+    <a onclick="go('faq')">FAQ</a>
+    <a onclick="go('contact')">Contact</a>
+  </div>
+  <div class="mm-sec">
+    <div class="mm-label">Earn</div>
+    <a onclick="go('refer')">Refer a Friend</a>
+    <a onclick="go('affiliates')">Affiliates</a>
+  </div>
 </aside>
 
 <div class="toast" id="toast"></div>
@@ -848,10 +859,10 @@ function plpHTML(){
   </div>`;
 }
 function renderPLP(){ app.innerHTML = plpHTML(); }
-function setCat(c){ currentCat=c; if(view!=='shop'&&view!=='home'){view='shop';} renderPLP(); setActiveNav(); window.scrollTo(0,0);  try{history.replaceState(snap(),'','');}catch(e){} saveRoute(); }
-function setSort(s){ currentSort=s; renderPLP();  try{history.replaceState(snap(),'','');}catch(e){} saveRoute(); }
-function setPrice(p){ currentPrice=p; renderPLP();  try{history.replaceState(snap(),'','');}catch(e){} saveRoute(); }
-function setForm(f){ currentForm=f; renderPLP();  try{history.replaceState(snap(),'','');}catch(e){} saveRoute(); }
+function setCat(c){ currentCat=c; if(view!=='shop'&&view!=='home'){view='shop';} renderPLP(); setActiveNav(); window.scrollTo(0,0);  syncURL(true); saveRoute(); }
+function setSort(s){ currentSort=s; renderPLP();  syncURL(true); saveRoute(); }
+function setPrice(p){ currentPrice=p; renderPLP();  syncURL(true); saveRoute(); }
+function setForm(f){ currentForm=f; renderPLP();  syncURL(true); saveRoute(); }
 
 const PICONS={
  wl:'<svg class="ic ic-wl" viewBox="0 0 40 40" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><polyline class="trend" pathLength="100" points="4,7 10,15 15,11 22,21 27,17 34,30"/><path class="wl-mark" d="M-3,-3 L3,0 L-3,3 Z" fill="#a8a8a8" stroke="none"/></svg>',
@@ -1765,6 +1776,58 @@ async function placeOrder(){
 }
 
 /* ---------------- ROUTER ---------------- */
+/* ---------------- URL ROUTING ---------------- */
+const CAT_SLUGS={'Muscle Growth':'muscle-growth','Recovery':'recovery','Weight Loss':'weight-loss','Anti-Aging':'anti-aging','Cognitive':'cognitive','Supplies':'supplies'};
+const SLUG_CATS={}; Object.keys(CAT_SLUGS).forEach(k=>SLUG_CATS[CAT_SLUGS[k]]=k);
+function pathFor(s){
+  switch(s.v){
+    case 'home': return '/';
+    case 'shop': return (!s.cat||s.cat==='all')?'/shop':'/shop/'+(CAT_SLUGS[s.cat]||encodeURIComponent(s.cat));
+    case 'product': return '/product/'+encodeURIComponent(s.arg||'');
+    case 'calc': return s.arg?'/calculator/'+encodeURIComponent(s.arg):'/calculator';
+    case 'faq': return '/faq';
+    case 'lab': return '/lab-results';
+    case 'contact': return '/contact';
+    case 'guides': return '/guides';
+    case 'guide': return '/guides/'+encodeURIComponent(s.arg||'');
+    case 'refer': return '/refer';
+    case 'affiliates': return '/affiliates';
+    case 'terms': return '/terms';
+    case 'privacy': return '/privacy';
+    case 'track': return s.arg?'/track/'+encodeURIComponent(s.arg):'/track';
+    case 'checkout': return '/checkout';
+    default: return '/';
+  }
+}
+function stateFromPath(path){
+  const base={v:'home',arg:null,cat:'all',sort:'featured',price:'all',form:'All Forms',sale:false,term:''};
+  const seg=(path||'/').split('/').filter(Boolean).map(x=>{try{return decodeURIComponent(x)}catch(e){return x}});
+  if(!seg.length) return base;
+  const a=seg[0], b=seg[1];
+  if(a==='shop') return Object.assign(base,{v:'shop',cat:b?(SLUG_CATS[b]||b):'all'});
+  if(a==='product'&&b) return Object.assign(base,{v:'product',arg:b});
+  if(a==='calculator') return Object.assign(base,{v:'calc',arg:b||null});
+  if(a==='faq') return Object.assign(base,{v:'faq'});
+  if(a==='lab-results') return Object.assign(base,{v:'lab'});
+  if(a==='contact') return Object.assign(base,{v:'contact'});
+  if(a==='guides') return b?Object.assign(base,{v:'guide',arg:b}):Object.assign(base,{v:'guides'});
+  if(a==='refer') return Object.assign(base,{v:'refer'});
+  if(a==='affiliates') return Object.assign(base,{v:'affiliates'});
+  if(a==='terms') return Object.assign(base,{v:'terms'});
+  if(a==='privacy') return Object.assign(base,{v:'privacy'});
+  if(a==='track') return Object.assign(base,{v:'track',arg:b||null});
+  if(a==='checkout') return Object.assign(base,{v:'checkout'});
+  return base;
+}
+const PAGE_TITLES={shop:'Shop',calc:'Peptide Calculator',faq:'FAQ',lab:'Lab Results',contact:'Contact',guides:'Peptide Guides',guide:'Peptide Guides',refer:'Refer a Friend',affiliates:'Affiliates',terms:'Terms & Conditions',privacy:'Privacy Policy',track:'Track Your Package',checkout:'Checkout'};
+function updateTitle(s){
+  let t='Papaya Peptides \u2014 Research Peptides & Supplies';
+  if(s.v==='product'&&s.arg){ const p=PRODUCTS.find(x=>x.id===s.arg); if(p) t=p.name+' \u2014 Papaya Peptides'; }
+  else if(s.v==='shop'&&s.cat&&s.cat!=='all') t=s.cat+' \u2014 Papaya Peptides';
+  else if(PAGE_TITLES[s.v]) t=PAGE_TITLES[s.v]+' \u2014 Papaya Peptides';
+  document.title=t;
+}
+function syncURL(replace){ const s=snap(); try{ history[replace?'replaceState':'pushState'](s,'',pathFor(s)); }catch(e){} updateTitle(s); }
 function setActiveNav(){
   document.getElementById('nav-shop').classList.toggle('active', view==='shop');
   var sup=document.getElementById('nav-support'); if(sup) sup.classList.toggle('active', ['calc','faq','lab','contact','guides','guide','refer','affiliates','track'].includes(view));
@@ -1789,9 +1852,9 @@ function applyState(s){
   else if(view==='track') renderTrack(s.arg);
   else if(view==='checkout') renderCheckout();
   else renderPLP();
-  setActiveNav(); window.scrollTo(0,0); saveRoute();
+  setActiveNav(); window.scrollTo(0,0); updateTitle(snap()); saveRoute();
 }
-function goBack(){ if(backStack.length){ applyState(backStack.pop()); try{history.pushState(snap(),'','');}catch(e){} } else { go('home'); } }
+function goBack(){ if(backStack.length){ applyState(backStack.pop()); syncURL(false); } else { go('home'); } }
 function go(v, arg){
   backStack.push(snap());
   currentArg=arg;
@@ -1812,10 +1875,10 @@ function go(v, arg){
   else if(v==='track'){ renderTrack(arg); }
   else if(v==='checkout'){ renderCheckout(); }
   setActiveNav(); window.scrollTo(0,0);
-  try{ history.pushState(snap(),'',''); }catch(e){} saveRoute();
+  syncURL(false); saveRoute();
 }
-window.onpopstate = e=>{ applyState(e.state || {v:'home',arg:null,cat:'all',sort:'featured',price:'all',form:'All Forms',sale:false,term:''}); };
-function onSearch(val){ searchTerm=val; if(view!=='shop'){ view='shop'; currentCat='all'; } renderPLP(); setActiveNav();  try{history.replaceState(snap(),'','');}catch(e){} saveRoute(); }
+window.onpopstate = e=>{ applyState(e.state || stateFromPath(location.pathname)); };
+function onSearch(val){ searchTerm=val; if(view!=='shop'){ view='shop'; currentCat='all'; } renderPLP(); setActiveNav();  syncURL(true); saveRoute(); }
 function toggleSearch(){ const sp=document.getElementById('searchpanel'); sp.classList.toggle('open'); setHeadHeight(); if(sp.classList.contains('open')) document.getElementById('searchInput').focus(); }
 
 /* ---------------- UI ---------------- */
@@ -1829,10 +1892,8 @@ function setHeadHeight(){ const h=document.querySelector('header').offsetHeight;
 /* init */
 window.addEventListener('resize', setHeadHeight);
 updateCartCount(); setHeadHeight();
-(function(){ let r=null; try{ r=JSON.parse(sessionStorage.getItem('pp_route')); }catch(e){}
-  if(r&&r.v&&r.v!=='confirm'){ applyState(r); } else { renderHome(); setActiveNav(); }
-})();
-try{history.replaceState(snap(),'','');}catch(e){} saveRoute();
+applyState(stateFromPath(location.pathname));
+syncURL(true); saveRoute();
 </script>
 </body>
 </html>
