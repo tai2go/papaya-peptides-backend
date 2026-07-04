@@ -849,6 +849,16 @@ function filtered(){
 /* ---------------- RENDER ---------------- */
 const app = document.getElementById('app');
 try{var _rf=new URLSearchParams(location.search).get('ref'); if(_rf) localStorage.setItem('pp_ref',_rf);}catch(e){}
+/* one-click reorder: ?reorder=PP-123456 rebuilds that order's kit in the cart */
+try{var _ro=new URLSearchParams(location.search).get('reorder'); if(_ro){
+  fetch('/api/orders/'+encodeURIComponent(_ro)+'/kit').then(function(r){return r.json();}).then(function(d){
+    if(!d||!d.items) return;
+    var c={}; try{c=JSON.parse(localStorage.getItem('pp_cart')||'{}');}catch(e){}
+    d.items.forEach(function(i){ c[i.id]=(c[i.id]||0)+(i.qty||1); });
+    try{localStorage.setItem('pp_cart',JSON.stringify(c));}catch(e){}
+    location.replace('/checkout');
+  }).catch(function(){});
+}}catch(e){}
 function tileHTML(p){
   return `<div class="tile" onclick="go('product','${p.id}')">
     <div class="tile-img">${imgOrSVG(p)}</div>
