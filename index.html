@@ -1864,7 +1864,10 @@ function setHeadHeight(){ const h=document.querySelector('header').offsetHeight;
 /* init */
 window.addEventListener('resize', setHeadHeight);
 updateCartCount(); setHeadHeight();
-(function(){ let r=null; try{ r=JSON.parse(sessionStorage.getItem('pp_route')); }catch(e){}
+(function(){
+  const path=location.pathname.replace(/\/+$/,'').toLowerCase();
+  if(path==='/calculator'||path==='/calc'){ view='calc'; renderCalc(); setActiveNav(); try{history.replaceState(snap(),'','');}catch(e){} saveRoute(); return; }
+  let r=null; try{ r=JSON.parse(sessionStorage.getItem('pp_route')); }catch(e){}
   if(r&&r.v&&r.v!=='confirm'){ applyState(r); } else { renderHome(); setActiveNav(); }
 })();
 try{history.replaceState(snap(),'','');}catch(e){} saveRoute();
