@@ -27,6 +27,13 @@ button:hover{opacity:.85}
 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
 .acts input,.acts select{padding:7px;border:1px solid #ccc;font-size:12px}
 .empty{text-align:center;color:#888;padding:50px}
+.reqbox{margin-top:14px;border:1px solid #E8731C;background:#fff7f0;border-radius:6px;padding:12px 14px}
+.reqh{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#E8731C;font-weight:700;margin-bottom:8px}
+.reqrow{display:flex;align-items:center;gap:10px;padding:4px 0}
+.reqrow span{width:160px;color:#888;font-size:11px}
+.reqrow b{flex:1;font-size:14px}
+.cpy{background:#fff;color:#E8731C;border:1px solid #E8731C;padding:3px 10px;font-size:11px;border-radius:4px;letter-spacing:0}
+.reqnote{font-size:11px;color:#888;margin-top:9px;line-height:1.5}
 </style></head><body>
 
 <div id="login" class="login">
@@ -84,8 +91,16 @@ async function load(){
           <div style="grid-column:1/-1">${[c.address,c.city,c.state,c.zip,c.country].filter(Boolean).join(', ')}</div>
         </div>
         <div class="items">${o.items.map(i=>`<div>${i.qty} × ${i.name} <span class="muted">(${i.vial})</span> — ${money(i.lineTotal)}${i.discount?` <span class="muted">−${i.discount*100}%</span>`:''}</div>`).join('')}</div>
-        <div class="muted">Subtotal ${money(o.subtotal)} · Shipping ${o.shipping?money(o.shipping):'Free'} · <b>Total ${money(o.total)}</b></div>
+        <div class="muted">Subtotal ${money(o.subtotal)} · Shipping ${o.shipping?money(o.shipping):'Free'} · Tax ${money(o.tax||0)} · <b>Total ${money(o.total)}</b></div>
         ${o.payment&&o.payment.hostedUrl?`<div style="margin-top:6px"><a href="${o.payment.hostedUrl}" target="_blank">Crypto checkout link</a></div>`:''}
+        ${o.method==='etransfer'&&(o.status==='pending_payment'||o.status==='etransfer_pending')?`
+        <div class="reqbox">
+          <div class="reqh">Send Interac Request Money</div>
+          <div class="reqrow"><span>Request from</span><b>${c.email||'—'}</b><button class="cpy" onclick="cpy(${JSON.stringify(c.email||'')},this)">Copy</button></div>
+          <div class="reqrow"><span>Amount (incl. tax)</span><b>${money(o.total)}</b><button class="cpy" onclick="cpy('${o.total}',this)">Copy</button></div>
+          <div class="reqrow"><span>Message / memo</span><b>${o.orderNo}</b><button class="cpy" onclick="cpy('${o.orderNo}',this)">Copy</button></div>
+          <div class="reqnote">In your banking app: Interac e-Transfer → <b>Request Money</b> → paste the email, amount and memo above. Once the customer approves and it lands, tap <b>Mark e-Transfer paid</b> below to send their confirmation email.</div>
+        </div>`:''}
         <div class="acts">
           ${(o.status==='pending_payment'||o.status==='etransfer_pending')&&o.method==='etransfer'?`<button onclick="markPaid('${o.orderNo}')">Mark e-Transfer paid</button>`:''}
           <select id="st-${o.orderNo}">${STATUSES.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
@@ -105,6 +120,7 @@ async function loadLeads(type){
   if(!data.length){ el.innerHTML='<div class="empty">No '+type+' yet.</div>'; return; }
   el.innerHTML=data.slice().reverse().map(d=>`<div class="order"><div class="top"><div><b>${d.name||d.email||d.code||''}</b> <span class="muted">${d.email||''}</span></div><div class="muted">${new Date(d.createdAt).toLocaleString()}</div></div>${d.code?`<div class="muted">Code: <b>${d.code}</b></div>`:''}${d.url?`<div class="muted">${d.url}</div>`:''}${d.message?`<div style="margin-top:6px">${d.message}</div>`:''}</div>`).join('');
 }
+function cpy(t,btn){ navigator.clipboard.writeText(String(t)).then(()=>{const o=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=o,1200);}); }
 async function markPaid(no){ await api('/orders/'+no+'/mark-paid',{method:'POST'}); load(); }
 async function setStatus(no){ const s=$('st-'+no).value; await api('/orders/'+no+'/status',{method:'POST',body:JSON.stringify({status:s})}); load(); }
 async function setTracking(no){ await api('/orders/'+no+'/tracking',{method:'POST',body:JSON.stringify({carrier:$('car-'+no).value,number:$('trk-'+no).value})}); load(); }

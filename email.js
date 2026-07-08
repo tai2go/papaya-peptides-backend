@@ -28,7 +28,7 @@ const wrap = (body) => `<div style="font-family:Helvetica,Arial,sans-serif;max-w
 export async function emailOrderReceived(order) {
   const items = order.items.map(i => `${i.qty} × ${i.name} (${i.vial}) — $${i.lineTotal}`).join('<br>');
   const pay = order.method === 'etransfer'
-    ? `<p>Please send your Interac e-Transfer of <b>$${order.total} CAD</b> to <b>${process.env.ETRANSFER_EMAIL || 'set ETRANSFER_EMAIL'}</b> and put <b>${order.orderNo}</b> in the message. Your order ships once we confirm payment.</p>`
+    ? `<p>You'll shortly receive an <b>Interac e-Transfer request</b> for <b>$${order.total} CAD</b> (this includes tax) sent to this email address. Just open your banking app and <b>approve the request</b> — your order number <b>${order.orderNo}</b> is included as the reference. Your order ships once the payment clears.</p>`
     : `<p>Complete your crypto payment using the checkout link. Your order ships once payment confirms.</p>`;
   await send(order.customer.email, `Order received — ${order.orderNo}`, wrap(
     `<p>Thanks${order.customer.firstName ? ', ' + order.customer.firstName : ''}. We received your order <b>${order.orderNo}</b>.</p>
@@ -39,11 +39,6 @@ export async function emailPaid(order) {
   await send(order.customer.email, `Payment confirmed — ${order.orderNo}`, wrap(
     `<p>We've confirmed payment for <b>${order.orderNo}</b>. It's now being prepared and you'll get tracking once it ships.</p>
      <p>Track anytime with your order number on the Track Your Package page.</p>`));
-}
-
-// Generic transport for the reorder-lifecycle engine (lifecycle.js).
-export async function sendLifecycle(to, subject, html) {
-  await send(to, subject, wrap(html));
 }
 
 export async function emailShipped(order) {
