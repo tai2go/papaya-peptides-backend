@@ -41,6 +41,11 @@ export async function emailPaid(order) {
      <p>Track anytime with your order number on the Track Your Package page.</p>`));
 }
 
+// Generic transport for the reorder-lifecycle engine (lifecycle.js).
+export async function sendLifecycle(to, subject, html) {
+  await send(to, subject, wrap(html));
+}
+
 export async function emailShipped(order) {
   const t = order.tracking || {};
   await send(order.customer.email, `Your order shipped — ${order.orderNo}`, wrap(
