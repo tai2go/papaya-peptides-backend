@@ -1732,20 +1732,20 @@ function renderEtransferPage(d, fn, email){
   view='confirm';
   app.innerHTML=`
   <div class="confirm" style="max-width:620px;text-align:left">
-    <h1 style="text-align:center">Approve Your e-Transfer</h1>
-    <p style="text-align:center;color:var(--muted);margin-bottom:8px">Order <span class="order-no">${d.orderNo}</span> is reserved \u2014 approve the payment request to finish.</p>
+    <h1 style="text-align:center">Accept Your Payment Request</h1>
+    <p style="text-align:center;color:var(--muted);margin-bottom:8px">Order <span class="order-no">${d.orderNo}</span> is reserved \u2014 accept the Interac request to finish.</p>
     <div class="et-box">
       <div class="et-row"><span class="k">Amount</span><span class="v">$${d.total} CAD <span style="color:var(--muted);font-size:11px">\u00b7 incl. tax</span></span></div>
       <div class="et-row"><span class="k">Request sent to</span><span class="v">${email}</span></div>
       <div class="et-row"><span class="k">Reference</span><span class="v">${d.orderNo}</span></div>
     </div>
     <ol class="et-steps">
-      <li>Within a few minutes you\u2019ll receive an <b>Interac e-Transfer request</b> from Papaya Peptides at <b>${email}</b>.</li>
-      <li>Open it in your bank\u2019s app or website (or the Interac email) and <b>approve / accept</b> the request.</li>
-      <li>The amount is <b>$${d.total} CAD</b> with order <b>${d.orderNo}</b> as the reference.</li>
+      <li>Within a few minutes you\u2019ll receive an <b>Interac e-Transfer request</b> for <b>$${d.total} CAD</b> \u2014 check your email or text messages.</li>
+      <li>Open it and tap <b>Accept / Deposit the request</b>.</li>
+      <li>Choose your bank and sign in \u2014 the payment links to your bank and completes automatically. No security question needed.</li>
       <li>Come back here and tap the button below.</li>
     </ol>
-    <button class="place-btn" style="margin-top:0" onclick="etransferSent('${d.orderNo}','${email}')">I\u2019ve approved the request</button>
+    <button class="place-btn" style="margin-top:0" onclick="etransferSent('${d.orderNo}','${email}')">I\u2019ve accepted the request</button>
     <p style="font-size:10px;color:#999;margin-top:14px;text-align:center">Your order ships once the payment clears. A copy of these details was emailed to ${email}.</p>
   </div>`;
   window.scrollTo(0,0);

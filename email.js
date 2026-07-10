@@ -25,47 +25,51 @@ const wrap = (body) => `<div style="font-family:Helvetica,Arial,sans-serif;max-w
   <h2 style="letter-spacing:2px;text-transform:uppercase;font-weight:600">${STORE}</h2>${body}
   <p style="font-size:11px;color:#888;margin-top:24px">Research Use Only. Not for human or animal consumption.</p></div>`;
 
+const IMG_BASE = process.env.PUBLIC_URL || 'https://papayapeps.com';
+
+// A line-item block with a product thumbnail, name, quantity and line total.
+function itemsTable(order) {
+  const rows = order.items.map(i => `
+    <tr>
+      <td style="padding:10px 0;width:64px;vertical-align:middle">
+        <img src="${IMG_BASE}/product-img/${i.id}.jpg" width="52" height="52" alt="${i.name}"
+             style="width:52px;height:52px;border-radius:8px;border:1px solid #eee;background:#faf9f7;object-fit:cover;display:block">
+      </td>
+      <td style="padding:10px 12px;vertical-align:middle;font-size:14px">
+        <b>${i.name}</b><br>
+        <span style="color:#8a8a8a;font-size:12px">${i.vial} · Qty ${i.qty}</span>
+      </td>
+      <td style="padding:10px 0;vertical-align:middle;text-align:right;font-size:14px;font-weight:600;white-space:nowrap">$${i.lineTotal}</td>
+    </tr>`).join('');
+  return `<table style="width:100%;border-collapse:collapse;background:#faf9f7;border:1px solid #eee;border-radius:8px">
+      <tbody>${rows}</tbody>
+      <tfoot><tr><td colspan="3" style="border-top:1px solid #eee;padding:12px;text-align:right;font-size:14px">
+        <b>Total: $${order.total} CAD</b> <span style="color:#8a8a8a">· includes tax</span>
+      </td></tr></tfoot>
+    </table>`;
+}
+
 export async function emailOrderReceived(order) {
-  const items = order.items.map(i => `${i.qty} × ${i.name} (${i.vial}) — $${i.lineTotal}`).join('<br>');
   const first = order.customer.firstName ? ', ' + order.customer.firstName : '';
-  const itemsBox = `<div style="background:#faf9f7;border:1px solid #eee;border-radius:8px;padding:14px 16px;font-size:14px">${items}<br><br><b>Total: $${order.total} CAD</b> · includes tax</div>`;
+  const itemsBox = itemsTable(order);
 
   if (order.method === 'etransfer') {
-    const et = {
-      email: process.env.ETRANSFER_EMAIL || 'set ETRANSFER_EMAIL',
-      name: process.env.ETRANSFER_NAME || STORE,
-      autodeposit: String(process.env.ETRANSFER_AUTODEPOSIT || 'true') === 'true',
-      question: process.env.ETRANSFER_QUESTION || '',
-      answer: process.env.ETRANSFER_ANSWER || ''
-    };
-    const row = (k, v) => `<tr><td style="padding:5px 0;color:#6b6b6b;width:150px">${k}</td><td style="padding:5px 0;font-weight:600">${v}</td></tr>`;
-    const security = (!et.autodeposit && et.question)
-      ? row('Security question', et.question) + row('Answer', et.answer)
-      : `<tr><td colspan="2" style="padding:6px 0;color:#6b6b6b">Our account has auto-deposit on — no security question is needed.</td></tr>`;
     const body = `
       <p>Hi${first},</p>
-      <p>We've received your order and it's on hold until the payment is confirmed. Here's a reminder of what's in it:</p>
+      <p>Thanks for your order. Here's what you ordered:</p>
       ${itemsBox}
-      <p style="background:#fff7f0;border-left:3px solid #E8731C;padding:11px 14px;border-radius:4px;margin-top:16px">
-        <b style="color:#E8731C">Payment required — this order is not yet confirmed.</b><br>
-        Please send your Interac e-Transfer <b>within 24 hours</b> so the order isn't automatically cancelled.</p>
-      <p style="margin-top:16px"><b>Send your Interac e-Transfer to:</b></p>
-      <table style="border-collapse:collapse;font-size:14px">
-        ${row('Send to', et.email)}
-        ${row('Recipient name', et.name)}
-        ${row('Amount', '$' + order.total + ' CAD')}
-        ${row('Message / memo', order.orderNo)}
-        ${security}
-      </table>
-      <p style="margin-top:18px"><b>Please follow these exactly:</b></p>
-      <ul style="margin:6px 0 0 18px;padding:0;font-size:14px">
-        <li>Confirm the recipient before sending — it must be <b>${et.name}</b>.</li>
-        <li>Put <b>only your order number (${order.orderNo})</b> in the message/memo.</li>
-        <li>Do not include any product names or other words in the transfer.</li>
-        <li>Send the exact total shown above.</li>
-      </ul>
-      <p style="font-size:12px;color:#777;margin-top:14px">Transfers that don't follow these steps may be delayed. Once the payment is confirmed the order is prepared and ships within 24 hours. Questions? Reply to this email with your order number.</p>`;
-    await send(order.customer.email, `Complete your order — payment required · ${order.orderNo}`, wrap(body));
+      <p style="background:#fff7f0;border-left:3px solid #E8731C;padding:12px 14px;border-radius:4px;margin-top:18px">
+        <b style="color:#E8731C">We've sent you an Interac e-Transfer request for $${order.total} CAD.</b><br>
+        Look for a separate email or text from Interac (or your own bank) requesting the payment — it's on its way to <b>${order.customer.email}</b>.</p>
+      <p style="margin-top:16px"><b>To pay, all you have to do is:</b></p>
+      <ol style="margin:6px 0 0 18px;padding:0;font-size:14px;line-height:1.7">
+        <li>Open the <b>Interac e-Transfer request</b> in your inbox or text messages.</li>
+        <li>Tap <b>Accept / Deposit the request</b>.</li>
+        <li>Choose your bank and sign in — the payment links to your bank and completes automatically.</li>
+      </ol>
+      <p style="font-size:13px;color:#555;margin-top:14px">The request is for <b>$${order.total} CAD</b> with your order number <b>${order.orderNo}</b> as the reference. No security question — accepting the request through your bank is all that's needed.</p>
+      <p style="font-size:12px;color:#777;margin-top:14px">Once the request is accepted and the payment clears, your order is prepared and ships within 24 hours. If you don't see the request within a few minutes, check your spam folder or reply to this email with your order number.</p>`;
+    await send(order.customer.email, `Your payment request is on its way — ${order.orderNo}`, wrap(body));
     return;
   }
 
