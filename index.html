@@ -680,17 +680,17 @@ select.unit{appearance:none;-webkit-appearance:none;-moz-appearance:none;text-al
   <div class="trust">
     <div class="ti"><svg viewBox="0 0 40 40" fill="none" stroke="#161616" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4 L33 9 V20 C33 28 27 34 20 37 C13 34 7 28 7 20 V9 Z"/><path d="M14 20 l4 4 l8 -9" stroke="#E8731C"/></svg></div>
     <h3>99%+ Purity, Guaranteed</h3>
-    <p>Every compound is verified to 99%+ purity by HPLC and mass spectrometry, and ships with its own Certificate of Analysis. If a batch doesn't meet spec, it never reaches you — that's the guarantee, in writing, on every order.</p>
+    <p>Every compound is verified to 99%+ purity by HPLC and mass spectrometry, and ships with its own Certificate of Analysis. If a batch doesn't meet spec, it never ships — that's our guarantee, in writing, on every order.</p>
   </div>
   <div class="trust">
     <div class="ti"><svg viewBox="0 0 40 40" fill="none" stroke="#161616" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="17" r="11"/><line x1="25.5" y1="25.5" x2="34" y2="34"/><path d="M12 17 l3.5 3.5 l7 -7.5" stroke="#E8731C"/></svg></div>
     <h3>Third-Party, Locally Tested</h3>
-    <p>We don't grade our own work. Every batch is sent to an independent, locally accredited laboratory for identity and purity analysis — so the numbers you rely on are confirmed by people with no stake in the result.</p>
+    <p>We don't grade our own work. Every batch is sent to an independent, locally accredited laboratory for identity and purity analysis — so every result is confirmed by people with no stake in the outcome.</p>
   </div>
   <div class="trust">
-    <div class="ti"><svg viewBox="0 0 40 40" fill="none" stroke="#161616" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 23 v-3 a12 12 0 0 1 24 0 v3"/><rect x="5" y="22" width="6" height="11" rx="2.5"/><rect x="29" y="22" width="6" height="11" rx="2.5"/><path d="M32 33 a9 7 0 0 1 -9 5 h-3"/></svg></div>
-    <h3>Specialist Support</h3>
-    <p>Real researchers, not a call centre. Our team talks reconstitution, storage and handling in plain language and replies within one business day — so you order, prepare and store with confidence instead of guesswork.</p>
+    <div class="ti"><svg viewBox="0 0 40 40" fill="none" stroke="#161616" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 12 h16 v13 H7 z"/><path d="M23 16 h6 l5 5 v4 h-11 z"/><circle cx="14" cy="29" r="2.6"/><circle cx="28" cy="29" r="2.6"/><path d="M3 15 h4 M2 20 h5" stroke="#E8731C"/></svg></div>
+    <h3>Canadian, Shipped in 24 Hours</h3>
+    <p>Proudly Canadian, and Canada-only. Orders ship from within Canada within 24 hours, in CAD, with no customs seizures or border delays. Real people reply fast and go above and beyond on every order — premium, white-glove service.</p>
   </div>
 </section>
 
@@ -807,7 +807,7 @@ const PRODUCTS = [
  {id:"retatrutide",name:"Retatrutide",cat:"Weight Loss",vial:"20 mg",mg:20,price:150,mini:"Weight Loss & Appetite Control",desc:"Retatrutide is an investigational triple receptor agonist that activates the GLP-1, GIP and glucagon receptors at once. In metabolic research the GLP-1 and GIP arms influence satiety and insulin signalling while the glucagon arm is studied for its effect on energy expenditure — a combination that has produced the largest effect sizes of its class in clinical development. It remains in active trials and is supplied strictly for laboratory research; it is not a therapeutic product and is not for human or animal use."},
  {id:"tirzepatide",name:"Tirzepatide",cat:"Weight Loss",vial:"10 mg",mg:10,price:110,mini:"Weight Loss & Fewer Cravings",desc:"Tirzepatide is a dual agonist of the GLP-1 and GIP receptors. In metabolic and glycemic research it is studied for its effects on satiety signalling, gastric emptying and glucose-dependent insulin response, and is one of the most extensively characterized molecules in its class. Supplied strictly for laboratory research; it is not a therapeutic product and is not for human or animal use."},
  {id:"semaglutide",name:"Semaglutide",cat:"Weight Loss",vial:"5 mg",mg:5,price:80,mini:"Appetite Control & Weight Loss",desc:"Semaglutide is a GLP-1 receptor agonist and one of the most-studied molecules in modern metabolic research. In research models it influences satiety signalling, glucose-dependent insulin release and gastric emptying — the pathways underlying appetite regulation and glycemic control. Supplied strictly for laboratory research; it is not a therapeutic product and is not for human or animal use."},
- {id:"sterile-water",name:"Bacteriostatic Water",cat:"Supplies",vial:"10 ml",mg:0,price:10,mini:"Mixes Your Peptides",desc:"The standard solvent for reconstituting lyophilized research peptides. Bacteriostatic water is water with 0.9% benzyl alcohol, a preservative that suppresses bacterial growth so a reconstituted vial can be drawn from repeatedly, typically over about four weeks. For laboratory research handling."},
+ {id:"sterile-water",name:"Bacteriostatic Water",cat:"Supplies",vial:"10 ml",mg:0,price:10,mini:"For Peptide Reconstitution",desc:"Supplied as a 10 mL vial. The standard solvent for reconstituting lyophilized research peptides — bacteriostatic water is water with 0.9% benzyl alcohol, a preservative that suppresses bacterial growth so a reconstituted vial can be drawn from repeatedly, typically over about four weeks. For laboratory research handling."},
  {id:"alcohol-pads",name:"Alcohol Pads",cat:"Supplies",vial:"30 / box",mg:0,price:10,mini:"Cleans Vials & Surfaces",desc:"Sterile, individually wrapped prep pads for maintaining a clean working field when handling research vials, injection-site simulations and work surfaces before reconstitution. A dependable laboratory staple."},
  {id:"syringes",name:"Injection Syringes",cat:"Supplies",vial:"30 / box",mg:0,price:15,mini:"Measure & Draw with Ease",desc:"Low-volume U-100 syringes for accurate, small-scale measurement and handling in the lab. Each is individually sealed in sterile packaging with a fine 31-gauge fixed needle. A dependable reconstitution and handling staple."}
 ];
@@ -904,10 +904,10 @@ function plpHTML(){
   </div>`;
 }
 function renderPLP(){ app.innerHTML = plpHTML(); }
-function setCat(c){ currentCat=c; if(view!=='shop'&&view!=='home'){view='shop';} renderPLP(); setActiveNav(); window.scrollTo(0,0);  try{history.replaceState(snap(),'','');}catch(e){} saveRoute(); }
-function setSort(s){ currentSort=s; renderPLP();  try{history.replaceState(snap(),'','');}catch(e){} saveRoute(); }
-function setPrice(p){ currentPrice=p; renderPLP();  try{history.replaceState(snap(),'','');}catch(e){} saveRoute(); }
-function setForm(f){ currentForm=f; renderPLP();  try{history.replaceState(snap(),'','');}catch(e){} saveRoute(); }
+function setCat(c){ currentCat=c; if(view!=='shop'&&view!=='home'){view='shop';} renderPLP(); setActiveNav(); window.scrollTo(0,0);  _route(0); saveRoute(); }
+function setSort(s){ currentSort=s; renderPLP();  _route(0); saveRoute(); }
+function setPrice(p){ currentPrice=p; renderPLP();  _route(0); saveRoute(); }
+function setForm(f){ currentForm=f; renderPLP();  _route(0); saveRoute(); }
 
 const PICONS={
  wl:'<svg class="ic ic-wl" viewBox="0 0 40 40" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><polyline class="trend" pathLength="100" points="4,7 10,15 15,11 22,21 27,17 34,30"/><path class="wl-mark" d="M-3,-3 L3,0 L-3,3 Z" fill="#a8a8a8" stroke="none"/></svg>',
@@ -955,7 +955,7 @@ function renderHome(){
       <div class="kitband-copy">
         <div class="kb-kicker">The Kit</div>
         <h2 class="kb-h">Everything,<br>considered.</h2>
-        <p class="kb-p">Every order ships reconstitution-ready &mdash; your compound, bacteriostatic water, syringes and prep pads, sealed in a lab-grade case.</p>
+        <p class="kb-p">Every order ships reconstitution-ready &mdash; the compound, bacteriostatic water, syringes and prep pads, sealed in a lab-grade case.</p>
         <span class="kb-link" onclick="go('shop','all')">Shop all &rarr;</span>
       </div>
       <div class="kitband-img"><img class="kimg" src="${KIT.open}" alt="Papaya Peptides reconstitution kit"></div>
@@ -1188,7 +1188,7 @@ function drawSyringe(units, perMl){
 function renderAffiliates(){
   app.innerHTML = `
   <div class="info-wrap">
-    <div class="info-head"><h1>Partner Program</h1><p>Partner with Papaya Peptides and earn on every researcher you send our way \u2014 15% on their first order and 10% on every reorder, for life. Instant approval, live stats, and monthly payouts in CAD.</p></div>
+    <div class="info-head"><h1>Partner Program</h1><p>Partner with Papaya Peptides and earn on every researcher referred \u2014 15% on their first order and 10% on every reorder, for life. Instant approval, live stats, and monthly payouts in CAD.</p></div>
     <div class="aff-sec" style="text-align:center;padding-top:6px">
       <button class="btn" onclick="window.open('https://partners.papayapeps.com/','_blank')">Become a Partner \u2192</button>
       <div class="mut" style="font-size:11px;margin-top:12px">Sign up in 60 seconds at partners.papayapeps.com</div>
@@ -1668,7 +1668,7 @@ function checkoutFlow(){
   _ancSel={}; missing.forEach(id=>_ancSel[id]=true);
   document.getElementById('ancBox').innerHTML=`
     <h3>Before you check out</h3>
-    <div class="sub">Reconstituting and injecting your peptides needs a few supplies. Your kit is missing the items below \u2014 add anything you'll need.</div>
+    <div class="sub">Reconstituting and injecting a peptide needs a few supplies. The items below aren't in the kit yet \u2014 add anything needed.</div>
     ${missing.map(id=>{const p=PRODUCTS.find(x=>x.id===id);return `
       <div class="anc-row" onclick="toggleAnc('${id}')">
         <span class="anc-cb on" id="anccb-${id}">\u2713</span>
@@ -1802,6 +1802,60 @@ function setActiveNav(){
   document.getElementById('nav-shop').classList.toggle('active', view==='shop');
   var sup=document.getElementById('nav-support'); if(sup) sup.classList.toggle('active', ['calc','faq','lab','contact','guides','guide','refer','affiliates','track'].includes(view));
 }
+function slugify(x){ return String(x).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
+function catFromSlug(sl){ return CATS.find(c=>slugify(c)===sl) || 'all'; }
+function defState(){ return {v:'home',arg:null,cat:'all',sort:'featured',price:'all',form:'All Forms',sale:false,term:''}; }
+function urlFor(s){ switch(s.v){
+  case 'home': return '/';
+  case 'shop': return (!s.cat||s.cat==='all')?'/shop':'/shop/'+slugify(s.cat);
+  case 'product': return '/product/'+(s.arg||'');
+  case 'calc': return '/calculator';
+  case 'faq': return '/faq';
+  case 'lab': return '/lab-results';
+  case 'contact': return '/contact';
+  case 'guides': return '/guides';
+  case 'guide': return '/guides/'+(s.arg||'');
+  case 'refer': return '/refer';
+  case 'affiliates': return '/affiliates';
+  case 'terms': return '/terms';
+  case 'privacy': return '/privacy';
+  case 'track': return '/track';
+  case 'checkout': return '/checkout';
+  default: return location.pathname; } }
+function viewFromPath(p){ p=(p||'/').replace(/\/+$/,'').toLowerCase()||'/'; if(p==='/') return {v:'home'};
+  const seg=p.slice(1).split('/'), a=seg[0], b=seg[1];
+  if(a==='shop') return {v:'shop', cat: b?catFromSlug(b):'all'};
+  if(a==='product'&&b) return {v:'product', arg:b};
+  if(a==='calculator'||a==='calc') return {v:'calc'};
+  if(a==='faq') return {v:'faq'};
+  if(a==='lab-results'||a==='lab') return {v:'lab'};
+  if(a==='contact') return {v:'contact'};
+  if(a==='guides') return b?{v:'guide',arg:b}:{v:'guides'};
+  if(a==='refer') return {v:'refer'};
+  if(a==='affiliates'||a==='partners') return {v:'affiliates'};
+  if(a==='terms') return {v:'terms'};
+  if(a==='privacy') return {v:'privacy'};
+  if(a==='track') return {v:'track'};
+  if(a==='checkout') return {v:'checkout'};
+  return null; }
+function titleFor(s){ const B='Papaya Peptides'; switch(s.v){
+  case 'home': return B+' — Research Peptides & Laboratory Supplies';
+  case 'shop': return ((!s.cat||s.cat==='all')?'Shop All':s.cat)+' — '+B;
+  case 'product': { const p=PRODUCTS.find(x=>x.id===s.arg); return (p?p.name:'Product')+' — '+B; }
+  case 'calc': return 'Peptide Reconstitution Calculator — '+B;
+  case 'faq': return 'FAQ — '+B;
+  case 'lab': return 'Lab Results — '+B;
+  case 'contact': return 'Contact — '+B;
+  case 'guides': return 'Peptide Guides — '+B;
+  case 'guide': return 'Guide — '+B;
+  case 'refer': return 'Refer a Friend — '+B;
+  case 'affiliates': return 'Partner Program — '+B;
+  case 'terms': return 'Terms & Conditions — '+B;
+  case 'privacy': return 'Privacy Policy — '+B;
+  case 'track': return 'Track Your Order — '+B;
+  case 'checkout': return 'Checkout — '+B;
+  default: return B; } }
+function _route(push){ try{ (push?history.pushState:history.replaceState).call(history, snap(),'', urlFor(snap())); }catch(e){} try{ document.title=titleFor(snap()); }catch(e){} }
 function snap(){ return {v:view,arg:currentArg,cat:currentCat,sort:currentSort,price:currentPrice,form:currentForm,sale:saleOnly,term:searchTerm}; }
 function saveRoute(){ try{ if(view!=='confirm') sessionStorage.setItem('pp_route', JSON.stringify(snap())); }catch(e){} }
 function applyState(s){
@@ -1822,9 +1876,9 @@ function applyState(s){
   else if(view==='track') renderTrack(s.arg);
   else if(view==='checkout') renderCheckout();
   else renderPLP();
-  setActiveNav(); window.scrollTo(0,0); saveRoute();
+  setActiveNav(); try{document.title=titleFor(snap());}catch(e){} window.scrollTo(0,0); saveRoute();
 }
-function goBack(){ if(backStack.length){ applyState(backStack.pop()); try{history.pushState(snap(),'','');}catch(e){} } else { go('home'); } }
+function goBack(){ if(backStack.length){ applyState(backStack.pop()); _route(1); } else { go('home'); } }
 function go(v, arg){
   backStack.push(snap());
   currentArg=arg;
@@ -1845,10 +1899,10 @@ function go(v, arg){
   else if(v==='track'){ renderTrack(arg); }
   else if(v==='checkout'){ renderCheckout(); }
   setActiveNav(); window.scrollTo(0,0);
-  try{ history.pushState(snap(),'',''); }catch(e){} saveRoute();
+  _route(1); saveRoute();
 }
 window.onpopstate = e=>{ applyState(e.state || {v:'home',arg:null,cat:'all',sort:'featured',price:'all',form:'All Forms',sale:false,term:''}); };
-function onSearch(val){ searchTerm=val; if(view!=='shop'){ view='shop'; currentCat='all'; } renderPLP(); setActiveNav();  try{history.replaceState(snap(),'','');}catch(e){} saveRoute(); }
+function onSearch(val){ searchTerm=val; if(view!=='shop'){ view='shop'; currentCat='all'; } renderPLP(); setActiveNav();  _route(0); saveRoute(); }
 function toggleSearch(){ const sp=document.getElementById('searchpanel'); sp.classList.toggle('open'); setHeadHeight(); if(sp.classList.contains('open')) document.getElementById('searchInput').focus(); }
 
 /* ---------------- UI ---------------- */
@@ -1863,12 +1917,12 @@ function setHeadHeight(){ const h=document.querySelector('header').offsetHeight;
 window.addEventListener('resize', setHeadHeight);
 updateCartCount(); setHeadHeight();
 (function(){
-  const path=location.pathname.replace(/\/+$/,'').toLowerCase();
-  if(path==='/calculator'||path==='/calc'){ view='calc'; renderCalc(); setActiveNav(); try{history.replaceState(snap(),'','');}catch(e){} saveRoute(); return; }
+  const parsed = viewFromPath(location.pathname);
+  if(parsed){ applyState(Object.assign(defState(), parsed)); return; }
   let r=null; try{ r=JSON.parse(sessionStorage.getItem('pp_route')); }catch(e){}
   if(r&&r.v&&r.v!=='confirm'){ applyState(r); } else { renderHome(); setActiveNav(); }
 })();
-try{history.replaceState(snap(),'','');}catch(e){} saveRoute();
+_route(0); saveRoute();
 </script>
 </body>
 </html>
