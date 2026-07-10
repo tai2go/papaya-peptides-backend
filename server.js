@@ -326,6 +326,8 @@ app.post('/api/admin/orders/:orderNo/tracking', adminOnly, (req, res) => {
 // storefront + admin are self-contained HTML served from the project root
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// link-preview / social card image (og:image) — served so iMessage/social show the logo card
+app.get('/og-image.png', (req, res) => res.sendFile(path.join(__dirname, 'og-image.png')));
 // SPA routing: any non-API, non-file path serves the storefront (client router takes over)
 app.get(/^\/(?!api\/)[^.]*$/, (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 

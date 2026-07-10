@@ -27,12 +27,52 @@ const wrap = (body) => `<div style="font-family:Helvetica,Arial,sans-serif;max-w
 
 export async function emailOrderReceived(order) {
   const items = order.items.map(i => `${i.qty} × ${i.name} (${i.vial}) — $${i.lineTotal}`).join('<br>');
-  const pay = order.method === 'etransfer'
-    ? `<p>You'll shortly receive an <b>Interac e-Transfer request</b> for <b>$${order.total} CAD</b> (this includes tax) sent to this email address. Just open your banking app and <b>approve the request</b> — your order number <b>${order.orderNo}</b> is included as the reference. Your order ships once the payment clears.</p>`
-    : `<p>Complete your crypto payment using the checkout link. Your order ships once payment confirms.</p>`;
+  const first = order.customer.firstName ? ', ' + order.customer.firstName : '';
+  const itemsBox = `<div style="background:#faf9f7;border:1px solid #eee;border-radius:8px;padding:14px 16px;font-size:14px">${items}<br><br><b>Total: $${order.total} CAD</b> · includes tax</div>`;
+
+  if (order.method === 'etransfer') {
+    const et = {
+      email: process.env.ETRANSFER_EMAIL || 'set ETRANSFER_EMAIL',
+      name: process.env.ETRANSFER_NAME || STORE,
+      autodeposit: String(process.env.ETRANSFER_AUTODEPOSIT || 'true') === 'true',
+      question: process.env.ETRANSFER_QUESTION || '',
+      answer: process.env.ETRANSFER_ANSWER || ''
+    };
+    const row = (k, v) => `<tr><td style="padding:5px 0;color:#6b6b6b;width:150px">${k}</td><td style="padding:5px 0;font-weight:600">${v}</td></tr>`;
+    const security = (!et.autodeposit && et.question)
+      ? row('Security question', et.question) + row('Answer', et.answer)
+      : `<tr><td colspan="2" style="padding:6px 0;color:#6b6b6b">Our account has auto-deposit on — no security question is needed.</td></tr>`;
+    const body = `
+      <p>Hi${first},</p>
+      <p>We've received your order and it's on hold until the payment is confirmed. Here's a reminder of what's in it:</p>
+      ${itemsBox}
+      <p style="background:#fff7f0;border-left:3px solid #E8731C;padding:11px 14px;border-radius:4px;margin-top:16px">
+        <b style="color:#E8731C">Payment required — this order is not yet confirmed.</b><br>
+        Please send your Interac e-Transfer <b>within 24 hours</b> so the order isn't automatically cancelled.</p>
+      <p style="margin-top:16px"><b>Send your Interac e-Transfer to:</b></p>
+      <table style="border-collapse:collapse;font-size:14px">
+        ${row('Send to', et.email)}
+        ${row('Recipient name', et.name)}
+        ${row('Amount', '$' + order.total + ' CAD')}
+        ${row('Message / memo', order.orderNo)}
+        ${security}
+      </table>
+      <p style="margin-top:18px"><b>Please follow these exactly:</b></p>
+      <ul style="margin:6px 0 0 18px;padding:0;font-size:14px">
+        <li>Confirm the recipient before sending — it must be <b>${et.name}</b>.</li>
+        <li>Put <b>only your order number (${order.orderNo})</b> in the message/memo.</li>
+        <li>Do not include any product names or other words in the transfer.</li>
+        <li>Send the exact total shown above.</li>
+      </ul>
+      <p style="font-size:12px;color:#777;margin-top:14px">Transfers that don't follow these steps may be delayed. Once the payment is confirmed the order is prepared and ships within 24 hours. Questions? Reply to this email with your order number.</p>`;
+    await send(order.customer.email, `Complete your order — payment required · ${order.orderNo}`, wrap(body));
+    return;
+  }
+
   await send(order.customer.email, `Order received — ${order.orderNo}`, wrap(
-    `<p>Thanks${order.customer.firstName ? ', ' + order.customer.firstName : ''}. We received your order <b>${order.orderNo}</b>.</p>
-     <p>${items}<br><br>Total: <b>$${order.total} CAD</b> · ${order.method === 'etransfer' ? 'Interac e-Transfer' : 'Crypto'}</p>${pay}`));
+    `<p>Thanks${first}. We've received your order <b>${order.orderNo}</b>.</p>
+     ${itemsBox}
+     <p style="margin-top:14px">Complete your crypto payment using the secure checkout link. Once the payment confirms, the order is prepared and ships within 24 hours.</p>`));
 }
 
 export async function emailPaid(order) {
