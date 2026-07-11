@@ -11,6 +11,7 @@ import { db } from './db.js';
 import { PRODUCTS, byId, lineTotal, shippingFor, discountRate, taxFor } from './products.js';
 import { createCryptoCharge, verifyCoinbase, verifyNow, PAYMENT_PROVIDER } from './payments.js';
 import { emailOrderReceived, emailPaid, emailShipped } from './email.js';
+import { startInboxWatcher } from './inbox.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -117,6 +118,7 @@ app.get('/api/products', (req, res) => res.json(PRODUCTS));
 app.get('/api/config', (req, res) => res.json({
   provider: PAYMENT_PROVIDER,
   etransfer: { email: process.env.ETRANSFER_EMAIL || '', name: process.env.ETRANSFER_NAME || '', question: process.env.ETRANSFER_QUESTION || '', answer: process.env.ETRANSFER_ANSWER || '', autodeposit: String(process.env.ETRANSFER_AUTODEPOSIT || 'true') === 'true' },
+  crypto: { address: process.env.CRYPTO_ADDRESS || 'bc1q7ahq49u3v957xn992f7lrxe2k2kxqutgarf2retk8akpems0z5wqe8q0dz', coin: process.env.CRYPTO_CURRENCY || 'Bitcoin (BTC)', network: process.env.CRYPTO_NETWORK || '' },
   freeShippingOver: 150
 }));
 
@@ -160,9 +162,16 @@ app.post('/api/orders', async (req, res) => {
     let resp = { orderNo: order.orderNo, total, method };
 
     if (method === 'crypto') {
-      const charge = await createCryptoCharge(order, baseUrl);
-      order.payment = charge;
-      resp.hostedUrl = charge.hostedUrl;     // redirect the customer here to pay
+      // Static-address model (parallels e-Transfer): the customer sends crypto to our
+      // wallet address, then we confirm and email them. No hosted checkout / provider needed.
+      const crypto = {
+        address: process.env.CRYPTO_ADDRESS || 'bc1q7ahq49u3v957xn992f7lrxe2k2kxqutgarf2retk8akpems0z5wqe8q0dz',
+        coin: process.env.CRYPTO_CURRENCY || 'Bitcoin (BTC)',
+        network: process.env.CRYPTO_NETWORK || '',
+        amount: total, currency: 'CAD', message: order.orderNo
+      };
+      order.payment = { method: 'crypto', ...crypto };
+      resp.crypto = crypto;
     } else {
       resp.etransfer = {
         email: process.env.ETRANSFER_EMAIL || '',
@@ -256,6 +265,16 @@ app.post('/api/admin/orders/:orderNo/mark-paid', adminOnly, async (req, res) => 
   await markPaid(req.params.orderNo, 'etransfer-manual');
   res.json(db.get(req.params.orderNo) || { error: 'not found' });
 });
+// Orders the inbox watcher flagged as "payment likely received" and awaiting your confirmation
+app.get('/api/admin/payments/detected', adminOnly, (req, res) => {
+  const done = ['paid', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'];
+  res.json(db.all().filter(o => o.paymentDetected && !done.includes(o.status)));
+});
+// Dismiss a false-positive detection (clears the flag without marking paid)
+app.post('/api/admin/orders/:orderNo/dismiss-detection', adminOnly, (req, res) => {
+  const o = db.update(req.params.orderNo, { paymentDetected: null });
+  o ? res.json(o) : res.status(404).json({ error: 'not found' });
+});
 // Update fulfillment status
 app.post('/api/admin/orders/:orderNo/status', adminOnly, (req, res) => {
   const valid = ['paid', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'];
@@ -328,6 +347,8 @@ app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html'))
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 // link-preview / social card image (og:image) — served so iMessage/social show the logo card
 app.get('/og-image.png', (req, res) => res.sendFile(path.join(__dirname, 'og-image.png')));
+// wordmark logo used in the header of order emails
+app.get('/email-logo.png', (req, res) => res.sendFile(path.join(__dirname, 'email-logo.png')));
 // product thumbnails used in order emails (hosted so email clients can load them)
 app.use('/product-img', express.static(path.join(__dirname, 'product-img'), { maxAge: '7d' }));
 // SPA routing: any non-API, non-file path serves the storefront (client router takes over)
@@ -336,4 +357,5 @@ app.get(/^\/(?!api\/)[^.]*$/, (req, res) => res.sendFile(path.join(__dirname, 'i
 app.listen(PORT, () => {
   console.log(`Papaya Peptides backend running on :${PORT}  (payments: ${PAYMENT_PROVIDER})`);
   startLifecycle();   // no-op unless LIFECYCLE_ENABLED=true; dry-run until LIFECYCLE_DRY_RUN=false
+  startInboxWatcher(); // no-op unless IMAP_HOST/IMAP_USER/IMAP_PASS are set
 });

@@ -2,8 +2,9 @@
 // If SMTP isn't configured, emails are skipped (logged) — the store still works fine.
 // Styling mirrors the storefront: white canvas, letter-spaced uppercase wordmark, hairline
 // rules, muted greys, and the papaya accent used sparingly — so the emails feel seamless
-// with papayapeps.com.
+// with papayapeps.com. e-Transfer and crypto share the exact same layout.
 import nodemailer from 'nodemailer';
+import { TAX_RATES } from './products.js';
 
 let transport = null;
 if (process.env.SMTP_HOST && process.env.SMTP_USER) {
@@ -15,9 +16,12 @@ if (process.env.SMTP_HOST && process.env.SMTP_USER) {
   });
 }
 
-const FROM = process.env.MAIL_FROM || 'Papaya Peptides <orders@papayapeps.com>';
+const FROM = process.env.MAIL_FROM || 'Papaya Peptides <payments@papayapeps.com>';
 const STORE = process.env.STORE_NAME || 'Papaya Peptides';
 const IMG_BASE = process.env.PUBLIC_URL || 'https://papayapeps.com';
+const CRYPTO_ADDRESS = process.env.CRYPTO_ADDRESS || 'bc1q7ahq49u3v957xn992f7lrxe2k2kxqutgarf2retk8akpems0z5wqe8q0dz';
+const CRYPTO_COIN = process.env.CRYPTO_CURRENCY || 'Bitcoin (BTC)';
+const CRYPTO_NETWORK = process.env.CRYPTO_NETWORK || '';
 const PAPAYA = '#E8731C';
 const INK = '#000000';
 const MUTED = '#767676';
@@ -38,7 +42,10 @@ const wrap = (body) => `<div style="margin:0;padding:0;background:#ffffff">
     <tr><td align="center" style="padding:40px 24px 56px">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:544px;font-family:${FONT};color:${INK};letter-spacing:.2px">
         <tr><td align="center" style="padding-bottom:22px;border-bottom:1px solid ${INK}">
-          <div style="font-size:19px;text-transform:uppercase;letter-spacing:3px;font-weight:500">${STORE}</div>
+          <table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr>
+            <td style="vertical-align:middle;padding-right:14px"><img src="${IMG_BASE}/email-logo.png" alt="" width="40" height="50" style="width:40px;height:50px;display:block"></td>
+            <td style="vertical-align:middle"><div style="font-size:19px;text-transform:uppercase;letter-spacing:3px;font-weight:500">${STORE}</div></td>
+          </tr></table>
         </td></tr>
         <tr><td style="padding-top:30px;font-size:13px;line-height:1.7;color:${INK}">${body}</td></tr>
         <tr><td style="padding-top:40px">
@@ -90,25 +97,78 @@ function itemsTable(order) {
       <td style="${bt}padding:18px 12px 18px 4px;text-align:right;vertical-align:middle;font-size:12px;font-weight:700;color:${INK};white-space:nowrap">$${i.lineTotal}</td>
     </tr>`;
   }).join('');
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid ${INK};border-bottom:1px solid ${INK}">
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid ${INK}">
       ${rows}
-      <tr><td colspan="3" style="border-top:1px solid ${INK};padding:15px 12px 15px 4px;text-align:right">
-        <span style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:${MUTED}">Total · incl. tax</span>
-        &nbsp;&nbsp;<span style="font-size:13px;font-weight:700;color:${INK}">$${order.total} CAD</span>
-      </td></tr>
     </table>`;
+}
+
+// Price breakdown: subtotal, shipping, HST/GST (province + rate), total.
+function summary(order) {
+  const prov = (order.customer && order.customer.state || '').toUpperCase();
+  // Use the statutory province rate; fall back to deriving it if the province is unknown.
+  const rate = (TAX_RATES && TAX_RATES[prov] != null)
+    ? TAX_RATES[prov]
+    : (order.subtotal > 0 ? Math.round((order.tax / order.subtotal) * 1000) / 10 : 0);
+  const taxLabel = 'HST/GST' + (prov ? ' · ' + prov : '') + (rate ? ' · ' + rate + '%' : '');
+  const line = (k, v, opts = {}) => `<tr>
+      <td style="padding:7px 4px 7px 0;font-size:12px;color:${opts.strong ? INK : MUTED};${opts.top ? `border-top:1px solid ${INK};` : ''}${opts.strong ? 'font-weight:700;' : ''}">${k}</td>
+      <td style="padding:7px 0 7px 4px;font-size:${opts.strong ? '13px' : '12px'};text-align:right;color:${INK};${opts.top ? `border-top:1px solid ${INK};` : ''}${opts.strong ? 'font-weight:700;' : ''}">${v}</td>
+    </tr>`;
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-bottom:1px solid ${INK}">
+      ${line('Subtotal', '$' + order.subtotal)}
+      ${line('Shipping', order.shipping ? '$' + order.shipping : 'Free')}
+      ${line(taxLabel, '$' + order.tax)}
+      ${line('Total · incl. tax', '$' + order.total + ' CAD', { strong: true, top: true })}
+    </table>`;
+}
+
+// Payment method + shipping/billing address (single address collected; billing = shipping).
+function details(order) {
+  const c = order.customer || {};
+  const pay = order.method === 'etransfer' ? 'Interac e-Transfer' : (CRYPTO_COIN || 'Cryptocurrency');
+  const name = [c.firstName, c.lastName].filter(Boolean).join(' ');
+  const cityLine = [c.city, (c.state || '').toUpperCase(), c.zip].filter(Boolean).join(', ');
+  const addr = [name, c.address, cityLine, c.country].filter(Boolean).join('<br>') || '—';
+  const mini = (t) => `<div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:${MUTED};margin-bottom:6px">${t}</div>`;
+  const val = (t) => `<div style="font-size:13px;line-height:1.6;color:${INK}">${t}</div>`;
+  return `<div style="margin-top:26px">
+      ${mini('Payment Method')}${val(pay)}
+      <div style="margin-top:18px">${mini('Shipping Address')}${val(addr)}</div>
+      <div style="margin-top:18px">${mini('Billing Address')}${val('Same as shipping')}</div>
+    </div>`;
+}
+
+// Crypto payment instructions — the parallel of the e-Transfer "send to" details.
+function cryptoBox(order) {
+  const rows = [
+    ['Currency', CRYPTO_COIN, false],
+    ...(CRYPTO_NETWORK ? [['Network', CRYPTO_NETWORK, false]] : []),
+    ['Amount', 'Equivalent of $' + order.total + ' CAD', false],
+    ['Address', CRYPTO_ADDRESS || 'set CRYPTO_ADDRESS', true],
+    ['Reference', order.orderNo, false]
+  ];
+  const html = rows.map((r, idx) => {
+    const bt = idx > 0 ? `border-top:1px solid #ececec;` : '';
+    const valStyle = r[2]
+      ? `font-family:Menlo,Consolas,'Courier New',monospace;font-size:12px;word-break:break-all;text-align:left`
+      : `text-align:right`;
+    return `<tr>
+        <td style="${bt}padding:12px 10px 12px 0;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:${MUTED};width:110px;vertical-align:top">${r[0]}</td>
+        <td style="${bt}padding:12px 0 12px 10px;font-size:13px;color:${INK};vertical-align:top;${valStyle}">${r[1]}</td>
+      </tr>`;
+  }).join('');
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid ${INK};border-bottom:1px solid ${INK}">${html}</table>`;
 }
 
 export async function emailOrderReceived(order) {
   const first = order.customer.firstName ? ' ' + order.customer.firstName : '';
-  const itemsBox = itemsTable(order);
+  const orderBlock = `${label('Your Order')}${itemsTable(order)}${summary(order)}${details(order)}`;
 
   if (order.method === 'etransfer') {
     const body = `
       <p style="margin:0 0 16px">Hi${first},</p>
-      <p style="margin:0 0 6px">Thank you for your order. Here's what you ordered:</p>
-      ${label('Your Order')}
-      ${itemsBox}
+      <p style="margin:0 0 6px">Thank you for your order. Here's your summary:</p>
+      ${orderBlock}
       ${accent(PAPAYA, 'Payment Requested',
         `We've sent an Interac e-Transfer request for <b>$${order.total} CAD</b> to <b>${order.customer.email}</b>. Look for a separate message from Interac or your own bank — it's on its way.`)}
       ${label('To Pay, All You Have To Do Is')}
@@ -122,22 +182,35 @@ export async function emailOrderReceived(order) {
     return;
   }
 
-  await send(order.customer.email, `Order received · ${order.orderNo}`, wrap(
-    `<p style="margin:0 0 16px">Hi${first},</p>
-     <p style="margin:0 0 6px">Thank you for your order <b>${order.orderNo}</b>. Here's what you ordered:</p>
-     ${label('Your Order')}
-     ${itemsBox}
-     <p style="margin:24px 0 0;font-size:13px;line-height:1.7">Complete your crypto payment using the secure checkout link. Once the payment confirms, your order is prepared and ships within 24 hours.</p>`));
+  // Crypto — same layout as e-Transfer, but the customer sends to a wallet address.
+  const body = `
+    <p style="margin:0 0 16px">Hi${first},</p>
+    <p style="margin:0 0 6px">Thank you for your order. Here's your summary:</p>
+    ${orderBlock}
+    ${accent(PAPAYA, 'Payment Requested',
+      `To confirm your order, send the equivalent of <b>$${order.total} CAD</b> in <b>${CRYPTO_COIN}</b> to the address below.`)}
+    ${label('Send Your Crypto Payment To')}
+    ${cryptoBox(order)}
+    <p style="margin:12px 0 0;font-size:11px;line-height:1.6;color:${MUTED}">
+      <b style="color:${INK}">Important:</b> crypto payments are irreversible. Always double-check the address above before you send — funds sent to a wrong or mistyped address, or on the wrong network, cannot be recovered or refunded. Only send ${CRYPTO_COIN} to this address.
+    </p>
+    ${label('To Pay, All You Have To Do Is')}
+    ${steps([
+      `Open your crypto wallet or exchange and choose <b>${CRYPTO_COIN}</b>${CRYPTO_NETWORK ? ` on the <b>${CRYPTO_NETWORK}</b> network` : ''}.`,
+      `Send the equivalent of <b>$${order.total} CAD</b> to the address above.`,
+      'Double-check the address and network before sending — crypto transfers can\'t be reversed.'
+    ])}
+    <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:${MUTED}">Keep order <b style="color:${INK}">${order.orderNo}</b> for your records. Once the payment is confirmed on-chain, your order ships within 24 hours. Questions? Reply here with your order number.</p>`;
+  await send(order.customer.email, `Complete your crypto payment · ${order.orderNo}`, wrap(body));
 }
 
 export async function emailPaid(order) {
   const first = order.customer.firstName ? ' ' + order.customer.firstName : '';
-  const itemsBox = itemsTable(order);
+  const orderBlock = `${label('Your Order')}${itemsTable(order)}${summary(order)}${details(order)}`;
   const body = `
     <p style="margin:0 0 16px">Hi${first},</p>
-    <p style="margin:0 0 6px">Thank you — your payment for <b>${order.orderNo}</b> has been received and your order is confirmed. Here's what you ordered:</p>
-    ${label('Your Order')}
-    ${itemsBox}
+    <p style="margin:0 0 6px">Thank you — your payment for <b>${order.orderNo}</b> has been received and your order is confirmed. Here's your summary:</p>
+    ${orderBlock}
     ${accent(INK, 'Payment Received', 'Your order is confirmed and now being prepared.')}
     ${label('What Happens Next')}
     ${steps([

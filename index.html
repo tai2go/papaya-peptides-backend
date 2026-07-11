@@ -1762,6 +1762,33 @@ async function etransferSent(no, email){
   </div>`;
   window.scrollTo(0,0);
 }
+function renderCryptoPage(d, fn, email){
+  view='confirm';
+  const cr=d.crypto||{};
+  const addr=cr.address||'', coin=cr.coin||'Cryptocurrency', net=cr.network||'';
+  app.innerHTML=`
+  <div class="confirm" style="max-width:620px;text-align:left">
+    <h1 style="text-align:center">Send Your Crypto Payment</h1>
+    <p style="text-align:center;color:var(--muted);margin-bottom:8px">Order <span class="order-no">${d.orderNo}</span> is reserved — send your payment to finish.</p>
+    <div class="et-box">
+      <div class="et-row"><span class="k">Currency</span><span class="v">${coin}</span></div>
+      ${net?`<div class="et-row"><span class="k">Network</span><span class="v">${net}</span></div>`:''}
+      <div class="et-row"><span class="k">Amount</span><span class="v">Equivalent of $${d.total} CAD</span></div>
+      <div class="et-row"><span class="k">Address</span><span class="v" style="font-family:Menlo,Consolas,monospace;font-size:12px;word-break:break-all">${addr||'—'}</span></div>
+      <div class="et-row"><span class="k">Reference</span><span class="v">${d.orderNo}</span></div>
+    </div>
+    <p style="font-size:11px;color:#999;line-height:1.5;margin-top:12px"><b style="color:#555">Important:</b> crypto payments are irreversible. Always double-check the address above before you send — funds sent to a wrong or mistyped address, or on the wrong network, cannot be recovered or refunded. Only send ${coin} to this address.</p>
+    <ol class="et-steps">
+      <li>Open your crypto wallet or exchange and choose <b>${coin}</b>${net?` on the <b>${net}</b> network`:''}.</li>
+      <li>Send the equivalent of <b>$${d.total} CAD</b> to the address above.</li>
+      <li>Double-check the address and network before sending — crypto transfers can’t be reversed.</li>
+      <li>Come back here and tap the button below.</li>
+    </ol>
+    <button class="place-btn" style="margin-top:0" onclick="etransferSent('${d.orderNo}','${email}')">I’ve sent the payment</button>
+    <p style="font-size:10px;color:#999;margin-top:14px;text-align:center">Your order ships once the payment is confirmed on-chain. A copy of these details was emailed to ${email}.</p>
+  </div>`;
+  window.scrollTo(0,0);
+}
 function ckv(id){ const e=document.getElementById(id); return e?e.value.trim():''; }
 async function placeOrder(){
   if(!document.getElementById('ck_ruo').checked){ toast("Please confirm the research-use agreement"); return; }
@@ -1778,6 +1805,7 @@ async function placeOrder(){
       if(!r.ok){ toast(d.error||'Order could not be placed'); if(btn){ btn.disabled=false; btn.textContent='Place Order'; } return; }
       cart={}; saveCart(); updateCartCount();
       if(d.method==='crypto' && d.hostedUrl){ window.location.href=d.hostedUrl; return; }
+      if(d.method==='crypto'){ renderCryptoPage(d, fn, email); return; }
       renderEtransferPage(d, fn, email);
     }catch(e){ toast('Network error — please try again'); if(btn){ btn.disabled=false; btn.textContent='Place Order'; } }
     return;
