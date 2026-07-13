@@ -1946,4 +1946,9 @@ window.addEventListener('resize', setHeadHeight);
 updateCartCount(); setHeadHeight();
 (function(){
   const parsed = viewFromPath(location.pathname);
-  if(parsed){ applyState(Object.assign(defState(), parsed)); return; 
+  if(parsed){ applyState(Object.assign(defState(), parsed)); return; }
+  applyState(defState());
+})();
+</script>
+</body>
+</html>
