@@ -339,6 +339,8 @@ app.get('/og-image.png', (req, res) => res.sendFile(path.join(__dirname, 'og-ima
 app.get('/email-logo.png', (req, res) => res.sendFile(path.join(__dirname, 'email-logo.png')));
 // product thumbnails used in order emails (hosted so email clients can load them)
 app.use('/product-img', express.static(path.join(__dirname, 'product-img'), { maxAge: '7d' }));
+// third-party Certificate of Analysis reports (linked from the Lab Results page)
+app.use('/coa', express.static(path.join(__dirname, 'coa'), { maxAge: '7d' }));
 // SPA routing: any non-API, non-file path serves the storefront (client router takes over)
 app.get(/^\/(?!api\/)[^.]*$/, (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 

@@ -636,6 +636,54 @@ select.unit{appearance:none;-webkit-appearance:none;-moz-appearance:none;text-al
 .coa-seal{width:54px;height:54px;border:2px solid #1B3A2B;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:1px;color:#1B3A2B;}
 .coa-acts{text-align:center;}
 @media print{ header,.trustbar,footer,.overlay{display:none!important;} .coa-ov{position:static;background:#fff;padding:0;display:block;} .coa-x,.coa-acts{display:none;} }
+
+/* touch-active mirror */
+@media (hover:none),(pointer:coarse){
+.navlink:active{text-decoration:underline;text-underline-offset:3px;}
+.fitem:active{text-decoration:underline;text-underline-offset:2px;}
+.tile:active .tile-img svg{transform:scale(1.04);}
+.pdp-back:active{color:#000;}
+.pdp-cta:active{background:#fff;color:#000;}
+.qty button:active{color:#000;}
+.cart-remove:active{color:#000;text-decoration:underline;}
+.checkout-btn:active{background:#fff;color:#000;}
+.place-btn:active{background:#fff;color:#000;}
+.btn:active{background:#fff;color:#000;}
+.foot-col a:active{color:#000;text-decoration:underline;text-underline-offset:2px;}
+.navdrop:active>.navlabel{text-decoration:underline;text-underline-offset:3px;}
+.navdrop:active .navdrop-menu{opacity:1;visibility:visible;transform:none;}
+.navdrop-menu a:active{text-decoration:underline;text-underline-offset:2px;}
+.navlink:active,.navlink.active{text-decoration-color:var(--papaya);}
+.navdrop:active>.navlabel,.navdrop.active>.navlabel{text-decoration-color:var(--papaya);}
+.fitem:active,.fitem.active{text-decoration-color:var(--papaya);}
+.foot-col a:active{color:var(--papaya);text-decoration-color:var(--papaya);}
+.faq summary:active{color:var(--papaya);}
+.lab-row .lc:active{color:var(--papaya);}
+.pdp-back:active{color:var(--papaya);}
+.tile:active .tile-img .vimg{transform:scale(1.03);}
+.chip:active{border-color:#000;}
+.tp-arrow:active{border-color:var(--papaya);color:var(--papaya);}
+.pdp-nav-arrow:active{border-color:var(--papaya);color:var(--papaya);background:#fff;}
+.pillar:active .pillar-img img,.pillar:active .pillar-img .vimg{transform:scale(1.03);}
+.pillar:active .pillar-cap .pa{color:var(--papaya);}
+.subtile:active .subtile-body .pa{color:var(--papaya);}
+.tp:active{background:#fafafa;}
+.tp:active .cta{color:var(--papaya);}
+.tp:active .picon .ic{stroke:var(--papaya);}
+.tp:active .ic-wl .trend{animation:wl-draw 2.2s linear infinite;}
+.tp:active .ic-wl .wl-mark{fill:var(--papaya);animation:wl-travel 2.2s linear infinite;}
+.tp:active .ic-wl .arr{animation:wl-arr 1.5s ease-in-out infinite;}
+.tp:active .ic-mg .ch{animation:mg-up 2.8s linear infinite;}
+.tp:active .ic-mg .ch2{animation-delay:-.93s;}
+.tp:active .ic-mg .ch3{animation-delay:-1.86s;}
+.tp:active .ic-rc{animation:spin 1.1s linear infinite;}
+.tp:active .ic-aa .mh{animation:spin-back 1.1s linear infinite;}
+.tp:active .ic-aa .hh{animation:spin-back 3.6s linear infinite;}
+.modal-acts .btn-sec:active{background:#000;color:#fff;}
+.kb-link:active{color:var(--papaya);border-color:var(--papaya);}
+.guides-more a:active{color:var(--papaya);}
+.page-back:active{color:#000;}
+}
 </style>
 </head>
 <body>
@@ -684,8 +732,8 @@ select.unit{appearance:none;-webkit-appearance:none;-moz-appearance:none;text-al
   </div>
   <div class="trust">
     <div class="ti"><svg viewBox="0 0 40 40" fill="none" stroke="#161616" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="17" r="11"/><line x1="25.5" y1="25.5" x2="34" y2="34"/><path d="M12 17 l3.5 3.5 l7 -7.5" stroke="#E8731C"/></svg></div>
-    <h3>Third-Party, Locally Tested</h3>
-    <p>We don't grade our own work. Every batch is sent to an independent, locally accredited laboratory for identity and purity analysis — so every result is confirmed by people with no stake in the outcome.</p>
+    <h3>COA Certified</h3>
+    <p>We don't grade our own work. Every batch is sent to an independent, third-party laboratory and ships with its own Certificate of Analysis — identity and purity verified by HPLC and mass spectrometry, confirmed by people with no stake in the outcome.</p>
   </div>
   <div class="trust">
     <div class="ti"><svg viewBox="0 0 40 40" fill="none" stroke="#161616" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 12 h16 v13 H7 z"/><path d="M23 16 h6 l5 5 v4 h-11 z"/><circle cx="14" cy="29" r="2.6"/><circle cx="28" cy="29" r="2.6"/><path d="M3 15 h4 M2 20 h5" stroke="#E8731C"/></svg></div>
@@ -788,25 +836,25 @@ select.unit{appearance:none;-webkit-appearance:none;-moz-appearance:none;text-al
 <script>
 /* ---------------- DATA ---------------- */
 const PRODUCTS = [
- {id:"cjc-no-dac",name:"CJC-1295 no DAC",cat:"Muscle Growth",vial:"5 mg",mg:5,price:55,mini:"Muscle Growth & Recovery",desc:"CJC-1295 (no DAC) is a growth-hormone-releasing hormone (GHRH) analogue — a shortened, stabilized peptide that signals the pituitary to release growth hormone in natural, pulsatile bursts. In research it has been studied for its influence on GH and IGF-1 levels and the downstream roles those play in lean-tissue growth, recovery and fat metabolism. Its short action makes it a common research pairing with a GHRP such as Ipamorelin.<br><br>In research, this is the pathway tied to leaner body composition, easier recovery and deeper sleep.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"ipamorelin",name:"Ipamorelin",cat:"Muscle Growth",vial:"5 mg",mg:5,price:80,mini:"Better Sleep & Recovery",desc:"Ipamorelin is a growth-hormone-releasing peptide (GHRP) and selective secretagogue — it mimics ghrelin to prompt a clean pulse of growth hormone with little effect on cortisol or prolactin. Research has examined this selectivity for its role in lean-mass support, tissue recovery and sleep quality. It is frequently studied alongside a GHRH analogue such as CJC-1295 for a stronger, more sustained release.<br><br>In research, it's the mechanism most associated with lean gains, sharper recovery and better rest.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"cjc-ipa-blend",name:"CJC-1295 no DAC + Ipamorelin",cat:"Muscle Growth",vial:"10 mg (5+5)",mg:10,price:80,mini:"Deeper Sleep & Lean Muscle",desc:"This blend pairs CJC-1295, a GHRH analogue, with Ipamorelin, a selective GHRP — two peptides that act on different parts of the growth-hormone pathway. Studied together in research, the combination has been associated with a fuller, longer growth-hormone pulse than either alone, along with the downstream effects on lean tissue, recovery and fat metabolism that follow.<br><br>Together in research, this pairing is linked to the most noticeable shifts in lean mass, recovery and body fat.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"tesamorelin",name:"Tesamorelin",cat:"Weight Loss",vial:"10 mg",mg:10,price:90,mini:"Fat Loss & Energy",desc:"Tesamorelin is a stabilized growth-hormone-releasing hormone (GHRH) analogue and one of the most-studied peptides for its effect on visceral fat. In research, GHRH signalling has been associated with reductions in visceral adipose tissue — the deep abdominal fat — along with shifts in lipid metabolism and IGF-1, all examined for their roles in body composition.<br><br>In research, this is what ties it to visible reductions in stubborn abdominal fat.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"mots-c",name:"MOTS-C",cat:"Weight Loss",vial:"10 mg",mg:10,price:50,mini:"Energy & Endurance",desc:"MOTS-c is a mitochondrial-derived peptide — a signalling molecule encoded within mitochondrial DNA that helps regulate cellular energy and metabolism. Research has associated it with improved insulin sensitivity, glucose handling and exercise capacity, and it is often described in the literature as an 'exercise-mimetic' peptide linking metabolism to physical resilience.<br><br>In research, this is the mechanism linked to steadier energy, endurance and metabolic health.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"bpc-157",name:"BPC-157",cat:"Recovery",vial:"10 mg",mg:10,price:65,mini:"Faster Healing & Recovery",desc:"BPC-157 is a synthetic 15-amino-acid peptide derived from a protein found in gastric juice. Across an unusually deep body of research it has been studied for its role in tissue repair — tendon, ligament, muscle, bone and gut lining — through pathways including new blood-vessel formation (angiogenesis) and growth-factor signalling. It is one of the most-researched recovery peptides, with particular attention to soft-tissue healing and gut protection.<br><br>In research, this is what underlies its reputation for faster recovery from injury and gut discomfort.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"tb-500",name:"TB-500",cat:"Recovery",vial:"10 mg",mg:10,price:65,mini:"Recovery & Inflammation Relief",desc:"TB-500 is a synthetic version of thymosin beta-4, a naturally occurring peptide involved in cell migration and repair. Research has studied its role in recovery — helping repair cells reach injured tissue, supporting new blood-vessel formation and reducing inflammation — with effects examined across muscle, tendon and connective tissue. It is frequently paired in research with BPC-157 for complementary repair pathways.<br><br>In research, this is the mechanism tied to quicker recovery and greater mobility after strain.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"bpc-tb-blend",name:"BPC-157 / TB-500 Blend",cat:"Recovery",vial:"10 mg (5+5)",mg:10,price:75,mini:"Full-Body Healing & Recovery",desc:"This blend combines BPC-157 and TB-500, two of the most-studied repair peptides, acting through complementary pathways. Research associates BPC-157 with localized tissue and gut healing and TB-500 with systemic cell migration and flexibility, and the pair is studied together for a broader recovery and anti-inflammatory profile than either alone.<br><br>Together in research, this pairing is associated with the most complete recovery profile of the two.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"kpv",name:"KPV",cat:"Recovery",vial:"10 mg",mg:10,price:50,mini:"Gut Comfort & Relief",desc:"KPV is a short tripeptide derived from the end of the alpha-MSH hormone, studied for its anti-inflammatory activity. Research has associated it with calming inflammatory signalling in the gut and skin — without the pigment effects of the parent hormone — and it is examined for its role in immune modulation and mucosal and skin recovery.<br><br>In research, this is what links it to calmer skin and a more settled gut.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"klow",name:"KLOW Blend",cat:"Anti-Aging",vial:"80 mg",mg:80,price:100,mini:"Gut Health & Clear Skin",desc:"KLOW is a multi-peptide blend that brings together regenerative and anti-inflammatory peptides — combining the tissue-healing activity of BPC-157 and TB-500 with the anti-inflammatory action of KPV and the collagen-supporting role of GHK-Cu. Studied in research for its layered effects on skin integrity, wound healing and inflammatory balance, it draws on the documented roles of each component.<br><br>In research, this blend is tied to clearer skin, faster healing and lower everyday inflammation.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"semax",name:"Semax",cat:"Cognitive",vial:"10 mg",mg:10,price:50,mini:"Focus & Mental Clarity",desc:"Semax is a synthetic peptide derived from a fragment of the ACTH hormone, studied as a nootropic. Research has associated it with increased BDNF — a key neurotrophic factor — and modulation of neurotransmitters, and it is examined for its role in focus, memory, mental resilience and neuroprotection.<br><br>In research, this is the mechanism associated with sharper focus, clearer thinking and mental stamina.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"selank",name:"Selank",cat:"Cognitive",vial:"10 mg",mg:10,price:70,mini:"Calm Mood & Stress Relief",desc:"Selank is a synthetic analogue of the immune peptide tuftsin, studied for its calming, anxiolytic properties. Research has associated it with steadier stress-related signalling, balanced mood, and modulation of BDNF and immune activity — examined as a non-sedating approach to stress in the literature.<br><br>In research, this is what ties it to a calmer, steadier state of mind — without sedation.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"ghk-cu",name:"GHK-Cu",cat:"Anti-Aging",vial:"50 mg",mg:50,price:40,mini:"Clear Skin & Hair Growth",desc:"GHK-Cu is a naturally occurring copper-binding tripeptide whose levels decline with age. It is one of the most-studied peptides in skin science, where research has associated it with collagen and elastin production, wound healing, and antioxidant and tissue-remodelling activity — the basis for its examined role in skin firmness and repair.<br><br>In research, this underlies its association with firmer, smoother, more youthful-looking skin.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"glow",name:"Glow Blend",cat:"Anti-Aging",vial:"70 mg",mg:70,price:120,mini:"Radiant Skin & Repair",desc:"Glow is a skin-focused blend that pairs the regenerative copper peptide GHK-Cu with the repair peptides BPC-157 and TB-500. Studied in research for its combined effect on complexion, elasticity and tissue recovery, it draws on GHK-Cu's role in collagen support and the healing pathways associated with its partner peptides.<br><br>In research, this blend is linked to a brighter, more even and more elastic complexion.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"epitalon",name:"Epitalon",cat:"Anti-Aging",vial:"10 mg",mg:10,price:40,mini:"Cellular Anti-Aging",desc:"Epitalon is a synthetic tetrapeptide based on a compound produced by the pineal gland. It is studied in longevity research for its association with telomerase activity — the enzyme that maintains the protective caps on DNA — along with circadian (melatonin) regulation and antioxidant activity, all examined for their roles in cellular ageing.<br><br>In research, this is the mechanism connected to healthier ageing and a steadier sleep-wake rhythm.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"nad",name:"NAD+",cat:"Anti-Aging",vial:"500 mg",mg:500,price:40,mini:"Cellular Energy & Recovery",desc:"NAD+ (nicotinamide adenine dinucleotide) is a coenzyme found in every cell and central to energy production and DNA repair. Its levels fall with age, and research has associated restoring NAD+ with improved mitochondrial function, activation of longevity-linked sirtuin pathways, and broader metabolic and cellular resilience.<br><br>In research, this is what ties restored NAD+ to more energy, sharper focus and slower cellular ageing.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"retatrutide",name:"Retatrutide",cat:"Weight Loss",vial:"20 mg",mg:20,price:150,mini:"Weight Loss & Appetite Control",desc:"Retatrutide is a next-generation metabolic peptide and a triple agonist — it activates three hormone receptors at once: GLP-1 (glucagon-like peptide-1), GIP (glucose-dependent insulinotropic polypeptide) and the glucagon receptor (GCGR). In research, engaging this broader set of receptors has been associated with stronger effects on appetite, fat metabolism and energy expenditure than earlier single- or dual-agonist peptides.<br><br>In research, hitting all three receptors is linked to some of the strongest appetite and body-fat effects observed in its class.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"tirzepatide",name:"Tirzepatide",cat:"Weight Loss",vial:"10 mg",mg:10,price:110,mini:"Weight Loss & Fewer Cravings",desc:"Tirzepatide is a dual agonist that activates both the GLP-1 and GIP receptors. In metabolic and glycemic research it has been studied for its effects on satiety signalling, gastric emptying and glucose-dependent insulin response, and is one of the most extensively characterized peptides in its class — often used as the research benchmark for dual-receptor activity.<br><br>In research, this dual action is what's associated with its pronounced effects on appetite and body weight.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
- {id:"semaglutide",name:"Semaglutide",cat:"Weight Loss",vial:"5 mg",mg:5,price:80,mini:"Appetite Control & Weight Loss",desc:"Semaglutide is a GLP-1 receptor agonist — it mimics the incretin hormone GLP-1 to influence appetite signalling, gastric emptying and glucose-dependent insulin release. It is among the most-studied peptides in metabolic research, examined for its role in satiety and blood-sugar regulation.<br><br>In research, this is the mechanism behind its well-documented effects on appetite and weight.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"cjc-no-dac",name:"CJC-1295 no DAC",cat:"Muscle Growth",vial:"5 mg",mg:5,price:55,mini:"Muscle Growth & Recovery",desc:"CJC-1295 (no DAC) is a synthetic analogue of growth-hormone-releasing hormone (GHRH), modified for stability while retaining the native 1-29 sequence. It binds pituitary GHRH receptors to promote the endogenous, pulsatile secretion of growth hormone, and is commonly studied as a research counterpart to a growth-hormone-releasing peptide such as Ipamorelin.<br><br>In research, this is the pathway tied to leaner body composition, easier recovery and deeper sleep.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"ipamorelin",name:"Ipamorelin",cat:"Muscle Growth",vial:"5 mg",mg:5,price:80,mini:"Better Sleep & Recovery",desc:"Ipamorelin is a selective growth-hormone-releasing peptide (GHRP) and ghrelin-receptor agonist. It stimulates growth-hormone secretion from the pituitary with high selectivity, showing minimal activity at the receptors governing cortisol or prolactin. It is frequently studied in combination with a GHRH analogue such as CJC-1295.<br><br>In research, it's the mechanism most associated with lean gains, sharper recovery and better rest.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"cjc-ipa-blend",name:"CJC-1295 no DAC + Ipamorelin",cat:"Muscle Growth",vial:"10 mg (5+5)",mg:10,price:80,mini:"Deeper Sleep & Lean Muscle",desc:"This blend combines CJC-1295, a GHRH analogue, with Ipamorelin, a selective GHRP. The two act on distinct, complementary receptor pathways of the growth-hormone axis — one sustaining the release signal, the other initiating the secretory pulse.<br><br>Together in research, this pairing is linked to the most noticeable shifts in lean mass, recovery and body fat.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"tesamorelin",name:"Tesamorelin",cat:"Weight Loss",vial:"10 mg",mg:10,price:90,mini:"Fat Loss & Energy",desc:"Tesamorelin is a stabilized synthetic analogue of growth-hormone-releasing hormone (GHRH). It binds pituitary GHRH receptors to stimulate endogenous growth-hormone secretion, and is among the most extensively characterized GHRH analogues in the research literature.<br><br>In research, this is what ties it to visible reductions in stubborn abdominal fat.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"mots-c",name:"MOTS-C",cat:"Weight Loss",vial:"10 mg",mg:10,price:50,mini:"Energy & Endurance",desc:"MOTS-c is a mitochondrial-derived peptide encoded within the mitochondrial genome. It functions as a signalling molecule in the regulation of cellular energy homeostasis, studied as a mediator between mitochondrial activity and systemic metabolic pathways.<br><br>In research, this is the mechanism linked to steadier energy, endurance and metabolic health.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"bpc-157",name:"BPC-157",cat:"Recovery",vial:"10 mg",mg:10,price:65,mini:"Faster Healing & Recovery",desc:"BPC-157 is a synthetic, stable pentadecapeptide (15 amino acids) derived from a partial sequence of a protein found in gastric juice. In research it is characterized for its interaction with angiogenic and growth-factor signalling, including nitric-oxide regulation and the upregulation of growth-factor receptors.<br><br>In research, this is what underlies its reputation for faster recovery from injury and gut discomfort.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"tb-500",name:"TB-500",cat:"Recovery",vial:"10 mg",mg:10,price:65,mini:"Recovery & Inflammation Relief",desc:"TB-500 is a synthetic peptide corresponding to the active region of thymosin beta-4, a naturally occurring protein that binds actin and regulates cytoskeletal dynamics. In research it is characterized for its role in cell migration, differentiation and angiogenesis.<br><br>In research, this is the mechanism tied to quicker recovery and greater mobility after strain.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"bpc-tb-blend",name:"BPC-157 / TB-500 Blend",cat:"Recovery",vial:"10 mg (5+5)",mg:10,price:75,mini:"Full-Body Healing & Recovery",desc:"This blend pairs BPC-157 and TB-500, two peptides characterized in research for distinct but complementary pathways — BPC-157 for localized angiogenic and growth-factor signalling, TB-500 for actin regulation and systemic cell migration.<br><br>Together in research, this pairing is associated with the most complete recovery profile of the two.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"kpv",name:"KPV",cat:"Recovery",vial:"10 mg",mg:10,price:50,mini:"Gut Comfort & Relief",desc:"KPV is the C-terminal tripeptide (lysine-proline-valine) of alpha-melanocyte-stimulating hormone (alpha-MSH). It retains the anti-inflammatory signalling of the parent hormone without its melanocortin (pigmentary) activity, and is studied for its modulation of inflammatory pathways in epithelial tissue.<br><br>In research, this is what links it to calmer skin and a more settled gut.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"klow",name:"KLOW Blend",cat:"Anti-Aging",vial:"80 mg",mg:80,price:100,mini:"Gut Health & Clear Skin",desc:"KLOW is a multi-peptide research blend combining GHK-Cu, KPV, BPC-157 and TB-500. It brings together copper-peptide, melanocortin-fragment and tissue-repair sequences, each characterized for distinct regenerative and anti-inflammatory signalling pathways.<br><br>In research, this blend is tied to clearer skin, faster healing and lower everyday inflammation.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"semax",name:"Semax",cat:"Cognitive",vial:"10 mg",mg:10,price:50,mini:"Focus & Mental Clarity",desc:"Semax is a synthetic heptapeptide derived from a fragment (ACTH 4-10) of adrenocorticotropic hormone, extended for enzymatic stability. In research it is characterized for its influence on brain-derived neurotrophic factor (BDNF) expression and on dopaminergic and serotonergic neurotransmitter systems.<br><br>In research, this is the mechanism associated with sharper focus, clearer thinking and mental stamina.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"selank",name:"Selank",cat:"Cognitive",vial:"10 mg",mg:10,price:70,mini:"Calm Mood & Stress Relief",desc:"Selank is a synthetic heptapeptide analogue of the endogenous immunomodulatory peptide tuftsin. In research it is characterized for its interaction with GABAergic and monoaminergic signalling and its modulation of BDNF and cytokine expression.<br><br>In research, this is what ties it to a calmer, steadier state of mind — without sedation.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"ghk-cu",name:"GHK-Cu",cat:"Anti-Aging",vial:"50 mg",mg:50,price:40,mini:"Clear Skin & Hair Growth",desc:"GHK-Cu is a naturally occurring copper(II)-binding tripeptide (glycyl-L-histidyl-L-lysine) whose endogenous levels decline with age. In research it is characterized for its role in copper transport and its activation of genes associated with extracellular-matrix remodelling.<br><br>In research, this underlies its association with firmer, smoother, more youthful-looking skin.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"glow",name:"Glow Blend",cat:"Anti-Aging",vial:"70 mg",mg:70,price:120,mini:"Radiant Skin & Repair",desc:"Glow is a research blend pairing the copper tripeptide GHK-Cu with the repair peptides BPC-157 and TB-500. It combines matrix-remodelling and angiogenic signalling sequences characterized across dermatological and tissue-repair research.<br><br>In research, this blend is linked to a brighter, more even and more elastic complexion.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"epitalon",name:"Epitalon",cat:"Anti-Aging",vial:"10 mg",mg:10,price:40,mini:"Cellular Anti-Aging",desc:"Epitalon is a synthetic tetrapeptide (Ala-Glu-Asp-Gly) modelled on epithalamin, a peptide isolated from the pineal gland. In research it is characterized for its influence on telomerase expression and pineal-gland signalling.<br><br>In research, this is the mechanism connected to healthier ageing and a steadier sleep-wake rhythm.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"nad",name:"NAD+",cat:"Anti-Aging",vial:"500 mg",mg:500,price:40,mini:"Cellular Energy & Recovery",desc:"NAD+ (nicotinamide adenine dinucleotide) is a coenzyme present in all living cells, essential to redox reactions, mitochondrial energy production, and DNA-repair enzymes such as the sirtuins and PARPs. Its cellular concentration declines with age.<br><br>In research, this is what ties restored NAD+ to more energy, sharper focus and slower cellular ageing.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"retatrutide",name:"Retatrutide",cat:"Weight Loss",vial:"20 mg",mg:20,price:150,mini:"Weight Loss & Appetite Control",desc:"Retatrutide is a synthetic triple-agonist peptide engineered to activate three incretin and metabolic receptors simultaneously: GLP-1 (glucagon-like peptide-1), GIP (glucose-dependent insulinotropic polypeptide) and the glucagon receptor (GCGR).<br><br>In research, hitting all three receptors is linked to some of the strongest appetite and body-fat effects observed in its class.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"tirzepatide",name:"Tirzepatide",cat:"Weight Loss",vial:"10 mg",mg:10,price:110,mini:"Weight Loss & Fewer Cravings",desc:"Tirzepatide is a synthetic dual-agonist peptide that binds and activates both the GLP-1 and GIP receptors. It is one of the most extensively characterized dual incretin-receptor agonists in the research literature.<br><br>In research, this dual action is what's associated with its pronounced effects on appetite and body weight.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
+ {id:"semaglutide",name:"Semaglutide",cat:"Weight Loss",vial:"5 mg",mg:5,price:80,mini:"Appetite Control & Weight Loss",desc:"Semaglutide is a synthetic analogue of the incretin hormone GLP-1, structurally modified for an extended half-life. It selectively binds and activates the GLP-1 receptor.<br><br>In research, this is the mechanism behind its well-documented effects on appetite and weight.<br><br><i style='color:#9a9a9a;font-size:11px'>For research use only.</i>"},
  {id:"sterile-water",name:"Bacteriostatic Water",cat:"Supplies",vial:"10 ml",mg:0,price:10,mini:"For Peptide Reconstitution",desc:"Supplied as a 10 mL vial. The standard solvent for reconstituting lyophilized research peptides — bacteriostatic water is water with 0.9% benzyl alcohol, a preservative that suppresses bacterial growth so a reconstituted vial can be drawn from repeatedly, typically over about four weeks. For laboratory research handling."},
  {id:"alcohol-pads",name:"Alcohol Pads",cat:"Supplies",vial:"30 / box",mg:0,price:5,mini:"Cleans Vials & Surfaces",desc:"A box of 30 sterile, individually wrapped prep pads for keeping a clean working field when handling research vials and work surfaces before reconstitution. Each pad stays sealed until use — a dependable laboratory staple."},
  {id:"syringes",name:"Injection Syringes",cat:"Supplies",vial:"30 / box",mg:0,price:15,mini:"Measure & Draw with Ease",desc:"Ultra-fine U-100 syringes built for precise, low-volume work in the lab. Each one arrives individually sealed in its own sterile wrap, so every draw starts clean — at the bench or on the move. The 31-gauge × 5/16\" (8 mm) fixed needle keeps handling smooth and controlled, while the clearly marked 1 ml barrel makes accurate small-volume measurement simple. Single-use by design, for reliable hygiene from first draw to disposal."}
@@ -1213,14 +1261,14 @@ const FAQS = [
  [`How long does shipping take?`, `Once your payment is confirmed we begin processing. Orders placed before our daily noon (PT) cut-off ship the same business day; later orders ship the next. Xpresspost typically reaches most major centres in 2-3 business days, with rural areas a day or so longer.`],
  [`How much does shipping cost?`, `Shipping is free on orders over $150. Below that, a flat $12 applies. The $150 threshold is based on your subtotal after any discounts.`],
  [`My tracking number isn't updating.`, `It can take Canada Post up to 24 hours to register a new tracking number. If it still isn't moving after 48 hours, contact us with your order number and we'll look into it.`],
- [`What payment methods do you accept?`, `We accept Interac e-Transfer and cryptocurrency. Mainstream card networks prohibit research compounds, so we use these methods to keep your order private and secure. Your order ships once payment is confirmed.`],
+ [`What payment methods do you accept?`, `We accept Interac e-Transfer only. Mainstream card networks prohibit research compounds, so we use these methods to keep your order private and secure. Your order ships once payment is confirmed.`],
  [`Can I change my order after paying?`, `Because of how fulfilment is set up, we can't add or remove items once an order is paid. If you'd like more, please place a separate order.`],
  [`What is your return and refund policy?`, `For safety and integrity reasons, opened or reconstituted vials cannot be returned. Unopened items in original packaging may be returned within 30 days — contact us first to arrange it. Full details are on our <a onclick="go('terms')">Terms &amp; Conditions</a> page.`],
  [`How are products shipped and stored?`, `Peptides ship as lyophilized (freeze-dried) powder, stable at room temperature for short transit windows. On arrival, store unopened vials in a freezer (-20 °C) away from light. Once reconstituted, keep the vial refrigerated at 2-8 °C.`],
  [`Is bacteriostatic water required?`, `Yes. All peptides ship in lyophilized form and must be reconstituted with bacteriostatic water before use in research. It is sold separately in our Supplies section. Our <a onclick="go('calc')">Reconstitution Calculator</a> gives exact volumes.`],
  [`How do I reconstitute a peptide?`, `Add the calculated volume of bacteriostatic water slowly down the inner wall of the vial, then gently swirl — never shake — until dissolved. The <a onclick="go('calc')">Reconstitution Calculator</a> gives you the exact volume, concentration and syringe units for any vial.`],
  [`How long does a reconstituted vial last?`, `Bacteriostatic water contains a preservative (0.9% benzyl alcohol), so a reconstituted vial stays usable for up to about 28 days when kept refrigerated and protected from light.`],
- [`Do you provide third-party testing?`, `Yes. Every batch is independently tested by HPLC and mass spectrometry for identity and purity. You can review current results on our <a onclick="go('lab')">Lab Results</a> page, and a Certificate of Analysis ships with every order.`]
+ [`Do you provide third-party testing?`, `Yes. Every batch is independently tested and certified by a third-party laboratory — HPLC and mass spectrometry for identity and purity. You can review current results on our <a onclick="go('lab')">Lab Results</a> page, and a Certificate of Analysis ships with every order.`]
 ];
 function renderFAQ(){
   app.innerHTML = `
@@ -1234,23 +1282,42 @@ function renderFAQ(){
 }
 
 const LAB = [
- ["BPC-157","99.2%","PP-2406-A"],["TB-500","98.9%","PP-2406-B"],["BPC-157 / TB-500 Blend","98.7%","PP-2406-C"],
- ["CJC-1295 no DAC","99.0%","PP-2405-D"],["Ipamorelin","99.4%","PP-2405-E"],["Tesamorelin","98.6%","PP-2405-F"],
- ["Semaglutide","99.1%","PP-2406-G"],["Tirzepatide","99.3%","PP-2406-H"],["Retatrutide","98.8%","PP-2406-J"],
- ["GHK-Cu","99.5%","PP-2404-K"],["Semax","98.9%","PP-2405-L"],["Epitalon","99.0%","PP-2404-M"]
+ ["BPC-157","99.2%","PP-2406-A"],["TB-500","98.9%","PP-2406-B"],["BPC-157 / TB-500 Blend","98.7%","PP-2406-C"],["KPV","99.2%","PP-2406-D"],
+ ["CJC-1295 no DAC","99.0%","PP-2405-E"],["Ipamorelin","99.4%","PP-2405-F"],["CJC-1295 no DAC + Ipamorelin","99.1%","PP-2405-G"],
+ ["Tesamorelin","98.6%","PP-2405-H"],["MOTS-C","98.8%","PP-2405-J"],
+ ["Semaglutide","99.1%","PP-2406-K"],["Tirzepatide","99.3%","PP-2406-L"],["Retatrutide","98.8%","PP-2406-M"],
+ ["GHK-Cu","99.5%","PP-2404-N"],["Glow Blend","98.9%","PP-2404-P"],["KLOW Blend","98.7%","PP-2404-Q"],["Epitalon","99.0%","PP-2404-R"],["NAD+","99.4%","PP-2404-S"],
+ ["Semax","98.9%","PP-2405-T"],["Selank","99.0%","PP-2405-U"]
 ];
 function renderLab(){
+  const COA=[
+    ["Semaglutide","99.72%","HPLC-UV","2026-02","semaglutide"],
+    ["Ipamorelin","99.82%","HPLC-UV","2025-12","ipamorelin"],
+    ["Retatrutide","99.59%","HPLC-UV","Task #167355","retatrutide"],
+    ["Tirzepatide","99.51%","HPLC-UV","Task #167348","tirzepatide"],
+    ["GHK-Cu","99.53%","HPLC-UV","2026-03","ghk-cu"],
+    ["Tesamorelin","99.04%","HPLC-UV","2025-11","tesamorelin"],
+    ["BPC-157 / TB-500 Blend","Content verified","HPLC-UV","2026-03","bpc-tb-blend"],
+    ["CJC-1295 no DAC + Ipamorelin","Content verified","HPLC-UV","2026-03","cjc-ipa-blend"],
+    ["Glow Blend","Content verified","HPLC-UV","2025-01","glow"]
+  ];
+  const kv=(k,v)=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #f0f0f0"><span style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)">${k}</span><span style="font-size:13px;font-weight:600;text-align:right">${v}</span></div>`;
+  const card=([n,p,t,b,id])=>`
+    <div style="border:1px solid #e6e6e6;background:#fff;padding:22px 20px 18px">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--papaya);font-weight:700;margin-bottom:12px">Janoshik Lab</div>
+      <div style="font-size:14px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;line-height:1.35;margin-bottom:12px;min-height:38px">${n}</div>
+      ${kv('Avg. Purity',p)}
+      ${kv('Type of Analysis',t)}
+      ${kv('Batch Number',b)}
+      <a href="/coa/${id}.jpg" target="_blank" rel="noopener" style="display:inline-block;margin-top:16px;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--papaya);font-weight:600;text-decoration:none">View Full Report &rarr;</a>
+    </div>`;
   app.innerHTML = `
   <div class="info-wrap">
-    <div class="info-head"><h1>Lab Results</h1><p>Independent, third-party analysis for every batch. Each compound is verified by high-performance liquid chromatography (HPLC) for purity and mass spectrometry (MS) for identity. A Certificate of Analysis ships with every order.</p></div>
-    <div class="lab-meta">
-      <div><span class="mut up" style="font-size:10px;letter-spacing:.5px">Avg. Purity</span><div class="v">99.0%</div></div>
-      <div><span class="mut up" style="font-size:10px;letter-spacing:.5px">Methods</span><div class="v">HPLC · MS</div></div>
-      <div><span class="mut up" style="font-size:10px;letter-spacing:.5px">Testing</span><div class="v">Third-party</div></div>
+    <div class="info-head"><h1>Certificate of Analysis</h1><p>Every compound is backed by an independent, third-party Certificate of Analysis, confirming its identity and purity by HPLC before it ships. Purity is verified batch by batch, and a signed COA accompanies every order.</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:16px;margin-top:26px">
+      ${COA.map(card).join('')}
     </div>
-    <div class="lab-head-row"><span>Compound</span><span>Purity</span><span>Batch</span><span>Report</span></div>
-    ${LAB.map(([n,p,b])=>`<div class="lab-row"><span class="ln">${n}</span><span class="lp">${p}</span><span class="lb">${b}</span><span class="lc" onclick="showCOA('${esc(n)}','${p}','${b}')">View COA</span></div>`).join('')}
-    <div class="info-ruo"><b>Research Use Only.</b> A signed Certificate of Analysis accompanies every order. Products are supplied for laboratory research only and are not for human or animal consumption.</div>
+    <div class="info-ruo" style="margin-top:34px"><b>Research Use Only.</b> Certificates of Analysis are provided for transparency. Products are supplied strictly for laboratory research and are not for human or animal consumption.</div>
   </div>`;
 }
 function showCOA(name,purity,batch){
@@ -1270,7 +1337,7 @@ function showCOA(name,purity,batch){
       <div><span>Method</span><b>RP-HPLC · ESI-MS</b></div>
       <div><span>Result</span><b style="color:#1B3A2B">PASS</b></div>
     </div>
-    <p class="coa-note">Independently analyzed by an accredited third-party laboratory. Identity confirmed by mass spectrometry; purity determined by reverse-phase HPLC. Supplied strictly for laboratory research use only — not for human or animal consumption.</p>
+    <p class="coa-note">Analyzed and certified by an independent, third-party laboratory. Identity confirmed by mass spectrometry; purity determined by reverse-phase HPLC. Supplied strictly for laboratory research use only — not for human or animal consumption.</p>
     <div class="coa-sig"><div><div class="coa-line"></div>Quality Assurance, Papaya Peptides</div><div class="coa-seal">RUO</div></div>
     <div class="coa-acts"><button class="btn" onclick="window.print()">Print / Save PDF</button></div>
   </div>`;
@@ -1712,7 +1779,7 @@ function renderCheckout(){
       </div>
       <div class="pay-note">We currently ship within Canada only.</div>
       <h2>Payment</h2>
-      ${BACKEND?`<div class="field-c full"><label>Payment Method</label><select id="ck_method"><option value="etransfer">Interac e-Transfer</option><option value="crypto">Cryptocurrency</option></select></div><div class="pay-note">After placing your order you'll go to a secure crypto checkout, or see Interac e-Transfer instructions. Your order ships once payment is confirmed.</div>`:`<div class="pay-note">Demo storefront — no real payment is processed and no card details are collected. Placing the order generates a sample confirmation only.</div>`}
+      ${BACKEND?`<div class="field-c full"><label>Payment Method</label><select id="ck_method"><option value="etransfer">Interac e-Transfer</option></select></div><div class="pay-note">After placing your order you'll see Interac e-Transfer instructions. Your order ships once payment is confirmed.</div>`:`<div class="pay-note">Demo storefront — no real payment is processed and no card details are collected. Placing the order generates a sample confirmation only.</div>`}
       <label class="ck-checkbox"><input type="checkbox" id="ck_ruo" style="width:auto;margin-top:2px"> I confirm I am a qualified researcher of legal age and that these products are for laboratory research use only — not for human or animal consumption.</label>
       <button class="place-btn" onclick="placeOrder()">Place Order — ${fmt(orderTotal())}</button>
     </div>
@@ -1762,33 +1829,6 @@ async function etransferSent(no, email){
   </div>`;
   window.scrollTo(0,0);
 }
-function renderCryptoPage(d, fn, email){
-  view='confirm';
-  const cr=d.crypto||{};
-  const addr=cr.address||'', coin=cr.coin||'Cryptocurrency', net=cr.network||'';
-  app.innerHTML=`
-  <div class="confirm" style="max-width:620px;text-align:left">
-    <h1 style="text-align:center">Send Your Crypto Payment</h1>
-    <p style="text-align:center;color:var(--muted);margin-bottom:8px">Order <span class="order-no">${d.orderNo}</span> is reserved — send your payment to finish.</p>
-    <div class="et-box">
-      <div class="et-row"><span class="k">Currency</span><span class="v">${coin}</span></div>
-      ${net?`<div class="et-row"><span class="k">Network</span><span class="v">${net}</span></div>`:''}
-      <div class="et-row"><span class="k">Amount</span><span class="v">Equivalent of $${d.total} CAD</span></div>
-      <div class="et-row"><span class="k">Address</span><span class="v" style="font-family:Menlo,Consolas,monospace;font-size:12px;word-break:break-all">${addr||'—'}</span></div>
-      <div class="et-row"><span class="k">Reference</span><span class="v">${d.orderNo}</span></div>
-    </div>
-    <p style="font-size:11px;color:#999;line-height:1.5;margin-top:12px"><b style="color:#555">Important:</b> crypto payments are irreversible. Always double-check the address above before you send — funds sent to a wrong or mistyped address, or on the wrong network, cannot be recovered or refunded. Only send ${coin} to this address.</p>
-    <ol class="et-steps">
-      <li>Open your crypto wallet or exchange and choose <b>${coin}</b>${net?` on the <b>${net}</b> network`:''}.</li>
-      <li>Send the equivalent of <b>$${d.total} CAD</b> to the address above.</li>
-      <li>Double-check the address and network before sending — crypto transfers can’t be reversed.</li>
-      <li>Come back here and tap the button below.</li>
-    </ol>
-    <button class="place-btn" style="margin-top:0" onclick="etransferSent('${d.orderNo}','${email}')">I’ve sent the payment</button>
-    <p style="font-size:10px;color:#999;margin-top:14px;text-align:center">Your order ships once the payment is confirmed on-chain. A copy of these details was emailed to ${email}.</p>
-  </div>`;
-  window.scrollTo(0,0);
-}
 function ckv(id){ const e=document.getElementById(id); return e?e.value.trim():''; }
 async function placeOrder(){
   if(!document.getElementById('ck_ruo').checked){ toast("Please confirm the research-use agreement"); return; }
@@ -1797,15 +1837,15 @@ async function placeOrder(){
   if(BACKEND){
     const items=Object.entries(cart).map(([id,qty])=>({id,qty}));
     const customer={email,firstName:fn,lastName:ckv('ck_ln'),phone:ckv('ck_phone'),lab:ckv('ck_lab'),address:ckv('ck_addr'),city:ckv('ck_city'),zip:ckv('ck_zip'),state:ckv('ck_state'),country:(document.getElementById('ck_country')||{}).value||''};
-    const method=(document.getElementById('ck_method')||{}).value||'crypto';
+    const method=(document.getElementById('ck_method')||{}).value||'etransfer';
     const btn=document.querySelector('.place-btn'); if(btn){ btn.disabled=true; btn.textContent='Processing…'; }
     try{
       const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items,customer,method,ruo:true,referral:(function(){try{return localStorage.getItem('pp_ref')||''}catch(e){return''}})()})});
       const d=await r.json();
       if(!r.ok){ toast(d.error||'Order could not be placed'); if(btn){ btn.disabled=false; btn.textContent='Place Order'; } return; }
       cart={}; saveCart(); updateCartCount();
-      if(d.method==='crypto' && d.hostedUrl){ window.location.href=d.hostedUrl; return; }
-      if(d.method==='crypto'){ renderCryptoPage(d, fn, email); return; }
+      
+      
       renderEtransferPage(d, fn, email);
     }catch(e){ toast('Network error — please try again'); if(btn){ btn.disabled=false; btn.textContent='Place Order'; } }
     return;
@@ -1950,5 +1990,6 @@ updateCartCount(); setHeadHeight();
   applyState(defState());
 })();
 </script>
+<script>document.addEventListener("touchstart",function(){},{passive:true});</script>
 </body>
 </html>

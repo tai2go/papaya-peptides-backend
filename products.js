@@ -21,7 +21,7 @@ export const PRODUCTS = [
   { id: "tirzepatide", name: "Tirzepatide", cat: "Weight Loss", vial: "10 mg", price: 110 },
   { id: "semaglutide", name: "Semaglutide", cat: "Weight Loss", vial: "5 mg", price: 80 },
   { id: "sterile-water", name: "Bacteriostatic Water", cat: "Supplies", vial: "10 ml", price: 10 },
-  { id: "alcohol-pads", name: "Alcohol Pads", cat: "Supplies", vial: "30 / box", price: 10 },
+  { id: "alcohol-pads", name: "Alcohol Pads", cat: "Supplies", vial: "30 / box", price: 5 },
   { id: "syringes", name: "Injection Syringes", cat: "Supplies", vial: "30 / box", price: 15 }
 ];
 
