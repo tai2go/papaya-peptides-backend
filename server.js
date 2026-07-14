@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 import { db } from './db.js';
 import { PRODUCTS, byId, lineTotal, shippingFor, discountRate, taxFor } from './products.js';
 import { createCryptoCharge, verifyCoinbase, verifyNow, PAYMENT_PROVIDER } from './payments.js';
-import { emailOrderReceived, emailPaid, emailShipped } from './email.js';
+import { emailOrderReceived, emailPaid, emailShipped, emailStoreNewOrder, emailStorePaid } from './email.js';
 import { startInboxWatcher } from './inbox.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -63,6 +63,7 @@ async function markPaid(no, provider) {
   if (!o || o.status === 'paid' || o.status === 'processing' || o.status === 'shipped' || o.status === 'delivered') return;
   db.update(no, { status: 'paid', payment: { ...(o.payment || {}), provider, paidAt: Date.now() } });
   try { await emailPaid(db.get(no)); } catch {}
+  emailStorePaid(db.get(no)).catch(() => {});
   notifyAffiliateAgent(db.get(no)).catch(() => {});
   console.log(`[paid] ${no} via ${provider}`);
 }
@@ -118,18 +119,17 @@ app.get('/api/products', (req, res) => res.json(PRODUCTS));
 app.get('/api/config', (req, res) => res.json({
   provider: PAYMENT_PROVIDER,
   etransfer: { email: process.env.ETRANSFER_EMAIL || '', name: process.env.ETRANSFER_NAME || '', question: process.env.ETRANSFER_QUESTION || '', answer: process.env.ETRANSFER_ANSWER || '', autodeposit: String(process.env.ETRANSFER_AUTODEPOSIT || 'true') === 'true' },
-  crypto: { address: process.env.CRYPTO_ADDRESS || 'bc1q7ahq49u3v957xn992f7lrxe2k2kxqutgarf2retk8akpems0z5wqe8q0dz', coin: process.env.CRYPTO_CURRENCY || 'Bitcoin (BTC)', network: process.env.CRYPTO_NETWORK || '' },
   freeShippingOver: 150
 }));
 
-// Create an order. body: { items:[{id,qty}], customer:{...}, method:'crypto'|'etransfer', ruo:true }
+// Create an order. body: { items:[{id,qty}], customer:{...}, method:'etransfer', ruo:true }
 app.post('/api/orders', async (req, res) => {
   try {
     const { items, customer, method, ruo, referral } = req.body || {};
     if (!ruo) return res.status(400).json({ error: 'You must accept the Research Use Only agreement.' });
     if (!Array.isArray(items) || !items.length) return res.status(400).json({ error: 'Your kit is empty.' });
     if (!customer || !customer.email || !customer.firstName) return res.status(400).json({ error: 'Name and email are required.' });
-    if (!['crypto', 'etransfer'].includes(method)) return res.status(400).json({ error: 'Choose a payment method.' });
+    if (method !== 'etransfer') return res.status(400).json({ error: 'We only accept Interac e-Transfer.' });
 
     // Re-price everything on the server from our own catalogue (never trust the browser's prices).
     const line = [];
@@ -161,30 +161,18 @@ app.post('/api/orders', async (req, res) => {
     const baseUrl = process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
     let resp = { orderNo: order.orderNo, total, method };
 
-    if (method === 'crypto') {
-      // Static-address model (parallels e-Transfer): the customer sends crypto to our
-      // wallet address, then we confirm and email them. No hosted checkout / provider needed.
-      const crypto = {
-        address: process.env.CRYPTO_ADDRESS || 'bc1q7ahq49u3v957xn992f7lrxe2k2kxqutgarf2retk8akpems0z5wqe8q0dz',
-        coin: process.env.CRYPTO_CURRENCY || 'Bitcoin (BTC)',
-        network: process.env.CRYPTO_NETWORK || '',
-        amount: total, currency: 'CAD', message: order.orderNo
-      };
-      order.payment = { method: 'crypto', ...crypto };
-      resp.crypto = crypto;
-    } else {
-      resp.etransfer = {
-        email: process.env.ETRANSFER_EMAIL || '',
-        name: process.env.ETRANSFER_NAME || '',
-        question: process.env.ETRANSFER_QUESTION || '',
-        answer: process.env.ETRANSFER_ANSWER || '',
-        autodeposit: String(process.env.ETRANSFER_AUTODEPOSIT || 'true') === 'true',
-        amount: total, currency: 'CAD', message: order.orderNo
-      };
-    }
+    resp.etransfer = {
+      email: process.env.ETRANSFER_EMAIL || '',
+      name: process.env.ETRANSFER_NAME || '',
+      question: process.env.ETRANSFER_QUESTION || '',
+      answer: process.env.ETRANSFER_ANSWER || '',
+      autodeposit: String(process.env.ETRANSFER_AUTODEPOSIT || 'true') === 'true',
+      amount: total, currency: 'CAD', message: order.orderNo
+    };
 
     db.insert(order);
     emailOrderReceived(order).catch(() => {});
+    emailStoreNewOrder(order).catch(() => {});
     res.json(resp);
   } catch (e) {
     console.error('[order error]', e.message);

@@ -2,7 +2,7 @@
 // If SMTP isn't configured, emails are skipped (logged) — the store still works fine.
 // Styling mirrors the storefront: white canvas, letter-spaced uppercase wordmark, hairline
 // rules, muted greys, and the papaya accent used sparingly — so the emails feel seamless
-// with papayapeps.com. e-Transfer and crypto share the exact same layout.
+// with papayapeps.com.
 import nodemailer from 'nodemailer';
 import { TAX_RATES } from './products.js';
 
@@ -16,16 +16,15 @@ if (process.env.SMTP_HOST && process.env.SMTP_USER) {
   });
 }
 
-const FROM = process.env.MAIL_FROM || 'Papaya Peptides <payments@papayapeps.com>';
+const FROM = process.env.MAIL_FROM || 'Papaya Peptides <pay@papayapeps.com>';
 const STORE = process.env.STORE_NAME || 'Papaya Peptides';
 const IMG_BASE = process.env.PUBLIC_URL || 'https://papayapeps.com';
-const CRYPTO_ADDRESS = process.env.CRYPTO_ADDRESS || 'bc1q7ahq49u3v957xn992f7lrxe2k2kxqutgarf2retk8akpems0z5wqe8q0dz';
-const CRYPTO_COIN = process.env.CRYPTO_CURRENCY || 'Bitcoin (BTC)';
-const CRYPTO_NETWORK = process.env.CRYPTO_NETWORK || '';
 const PAPAYA = '#E8731C';
 const INK = '#000000';
 const MUTED = '#767676';
 const FONT = "'Helvetica Neue',Helvetica,Arial,sans-serif";
+const ORDERS_EMAIL = process.env.ORDERS_EMAIL || 'hello@papayapeps.com';
+const PAYMENTS_EMAIL = process.env.PAYMENTS_EMAIL || 'pay@papayapeps.com';
 
 async function send(to, subject, html) {
   if (!transport || !to) { console.log(`[email skipped] ${subject} -> ${to || 'no-address'}`); return; }
@@ -125,7 +124,7 @@ function summary(order) {
 // Payment method + shipping/billing address (single address collected; billing = shipping).
 function details(order) {
   const c = order.customer || {};
-  const pay = order.method === 'etransfer' ? 'Interac e-Transfer' : (CRYPTO_COIN || 'Cryptocurrency');
+  const pay = 'Interac e-Transfer';
   const name = [c.firstName, c.lastName].filter(Boolean).join(' ');
   const cityLine = [c.city, (c.state || '').toUpperCase(), c.zip].filter(Boolean).join(', ');
   const addr = [name, c.address, cityLine, c.country].filter(Boolean).join('<br>') || '—';
@@ -136,28 +135,6 @@ function details(order) {
       <div style="margin-top:18px">${mini('Shipping Address')}${val(addr)}</div>
       <div style="margin-top:18px">${mini('Billing Address')}${val('Same as shipping')}</div>
     </div>`;
-}
-
-// Crypto payment instructions — the parallel of the e-Transfer "send to" details.
-function cryptoBox(order) {
-  const rows = [
-    ['Currency', CRYPTO_COIN, false],
-    ...(CRYPTO_NETWORK ? [['Network', CRYPTO_NETWORK, false]] : []),
-    ['Amount', 'Equivalent of $' + order.total + ' CAD', false],
-    ['Address', CRYPTO_ADDRESS || 'set CRYPTO_ADDRESS', true],
-    ['Reference', order.orderNo, false]
-  ];
-  const html = rows.map((r, idx) => {
-    const bt = idx > 0 ? `border-top:1px solid #ececec;` : '';
-    const valStyle = r[2]
-      ? `font-family:Menlo,Consolas,'Courier New',monospace;font-size:12px;word-break:break-all;text-align:left`
-      : `text-align:right`;
-    return `<tr>
-        <td style="${bt}padding:12px 10px 12px 0;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:${MUTED};width:110px;vertical-align:top">${r[0]}</td>
-        <td style="${bt}padding:12px 0 12px 10px;font-size:13px;color:${INK};vertical-align:top;${valStyle}">${r[1]}</td>
-      </tr>`;
-  }).join('');
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid ${INK};border-bottom:1px solid ${INK}">${html}</table>`;
 }
 
 export async function emailOrderReceived(order) {
@@ -182,26 +159,6 @@ export async function emailOrderReceived(order) {
     return;
   }
 
-  // Crypto — same layout as e-Transfer, but the customer sends to a wallet address.
-  const body = `
-    <p style="margin:0 0 16px">Hi${first},</p>
-    <p style="margin:0 0 6px">Thank you for your order. Here's your summary:</p>
-    ${orderBlock}
-    ${accent(PAPAYA, 'Payment Requested',
-      `To confirm your order, send the equivalent of <b>$${order.total} CAD</b> in <b>${CRYPTO_COIN}</b> to the address below.`)}
-    ${label('Send Your Crypto Payment To')}
-    ${cryptoBox(order)}
-    <p style="margin:12px 0 0;font-size:11px;line-height:1.6;color:${MUTED}">
-      <b style="color:${INK}">Important:</b> crypto payments are irreversible. Always double-check the address above before you send — funds sent to a wrong or mistyped address, or on the wrong network, cannot be recovered or refunded. Only send ${CRYPTO_COIN} to this address.
-    </p>
-    ${label('To Pay, All You Have To Do Is')}
-    ${steps([
-      `Open your crypto wallet or exchange and choose <b>${CRYPTO_COIN}</b>${CRYPTO_NETWORK ? ` on the <b>${CRYPTO_NETWORK}</b> network` : ''}.`,
-      `Send the equivalent of <b>$${order.total} CAD</b> to the address above.`,
-      'Double-check the address and network before sending — crypto transfers can\'t be reversed.'
-    ])}
-    <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:${MUTED}">Keep order <b style="color:${INK}">${order.orderNo}</b> for your records. Once the payment is confirmed on-chain, your order ships within 24 hours. Questions? Reply here with your order number.</p>`;
-  await send(order.customer.email, `Complete your crypto payment · ${order.orderNo}`, wrap(body));
 }
 
 export async function emailPaid(order) {
@@ -221,6 +178,38 @@ export async function emailPaid(order) {
     ])}
     <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:${MUTED}">Track anytime with order <b style="color:${INK}">${order.orderNo}</b> at papayapeps.com/track. Every order ships with its Certificate of Analysis. Questions? Reply here with your order number and a real person will help.</p>`;
   await send(order.customer.email, `Payment received — your order is on its way · ${order.orderNo}`, wrap(body));
+}
+
+// Internal notification to the store when a new order comes in (-> hello@).
+export async function emailStoreNewOrder(order) {
+  const c = order.customer || {};
+  const method = order.method === 'etransfer' ? 'Interac e-Transfer' : order.method;
+  const items = order.items.map(i => `${i.qty} &times; ${i.name} (${i.vial}) &mdash; $${i.lineTotal}`).join('<br>');
+  const name = [c.firstName, c.lastName].filter(Boolean).join(' ');
+  const cityLine = [c.city, (c.state || '').toUpperCase(), c.zip].filter(Boolean).join(', ');
+  const addr = [name, c.address, cityLine, c.country].filter(Boolean).join('<br>') || '&mdash;';
+  const body = `
+    <p style="margin:0 0 6px;font-size:14px"><b>New order &mdash; ${order.orderNo}</b></p>
+    ${label('Items')}
+    <div style="font-size:13px;line-height:1.7">${items}<br><br><b>Total: $${order.total} CAD</b> &middot; ${method}</div>
+    ${label('Customer')}
+    <div style="font-size:13px;line-height:1.6">${name || '&mdash;'}<br>${c.email || ''}${c.phone ? '<br>' + c.phone : ''}${c.lab ? '<br>' + c.lab : ''}</div>
+    ${label('Ship To')}
+    <div style="font-size:13px;line-height:1.6">${addr}</div>
+    <p style="margin-top:16px;font-size:12px;color:${MUTED}">Manage this order in the admin dashboard &middot; papayapeps.com/admin</p>`;
+  await send(ORDERS_EMAIL, `New order · ${order.orderNo} · $${order.total} CAD`, wrap(body));
+}
+
+// Internal notification to the store when a payment is confirmed (-> pay@).
+export async function emailStorePaid(order) {
+  const c = order.customer || {};
+  const method = order.method === 'etransfer' ? 'Interac e-Transfer' : order.method;
+  const name = [c.firstName, c.lastName].filter(Boolean).join(' ');
+  const body = `
+    <p style="margin:0 0 6px;font-size:14px"><b>Payment received &mdash; ${order.orderNo}</b></p>
+    <div style="font-size:13px;line-height:1.7">${name || '&mdash;'} &middot; ${c.email || ''}<br><b>$${order.total} CAD</b> &middot; ${method}</div>
+    <p style="margin-top:16px;font-size:12px;color:${MUTED}">Order is marked paid and ready to prepare &middot; papayapeps.com/admin</p>`;
+  await send(PAYMENTS_EMAIL, `Payment received · ${order.orderNo} · $${order.total} CAD`, wrap(body));
 }
 
 // Generic transport for the reorder-lifecycle engine (lifecycle.js).
