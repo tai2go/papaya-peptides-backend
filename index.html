@@ -1290,32 +1290,55 @@ const LAB = [
  ["Semax","98.9%","PP-2405-T"],["Selank","99.0%","PP-2405-U"]
 ];
 function renderLab(){
-  const COA=[
-    ["Semaglutide","99.72%","HPLC-UV","2026-02","semaglutide"],
-    ["Ipamorelin","99.82%","HPLC-UV","2025-12","ipamorelin"],
-    ["Retatrutide","99.59%","HPLC-UV","Task #167355","retatrutide"],
-    ["Tirzepatide","99.51%","HPLC-UV","Task #167348","tirzepatide"],
-    ["GHK-Cu","99.53%","HPLC-UV","2026-03","ghk-cu"],
-    ["Tesamorelin","99.04%","HPLC-UV","2025-11","tesamorelin"],
-    ["BPC-157 / TB-500 Blend","Content verified","HPLC-UV","2026-03","bpc-tb-blend"],
-    ["CJC-1295 no DAC + Ipamorelin","Content verified","HPLC-UV","2026-03","cjc-ipa-blend"],
-    ["Glow Blend","Content verified","HPLC-UV","2025-01","glow"]
+  // [name, purity(null=report pending), batch, lab, category]
+  const ITEMS=[
+    ["Retatrutide","99.59%","2026 · 167355","Third-Party Lab","Weight Management"],
+    ["Tirzepatide","99.51%","2026 · 167348","Third-Party Lab","Weight Management"],
+    ["Semaglutide","99.72%","Batch 2026-02","Third-Party Lab","Weight Management"],
+    ["Tesamorelin","99.04%","Batch 2025-11","Third-Party Lab","Weight Management"],
+    ["MOTS-C",null,null,"Third-Party Lab","Weight Management"],
+    ["Ipamorelin","99.82%","Batch 2025-12","Third-Party Lab","Growth"],
+    ["CJC-1295 no DAC",null,null,"Third-Party Lab","Growth"],
+    ["CJC-1295 no DAC + Ipamorelin",null,null,"Testides Lab","Growth"],
+    ["BPC-157",null,null,"Third-Party Lab","Recovery"],
+    ["TB-500",null,null,"Third-Party Lab","Recovery"],
+    ["BPC-157 / TB-500 Blend",null,null,"Testides Lab","Recovery"],
+    ["KPV",null,null,"Third-Party Lab","Recovery"],
+    ["GHK-Cu","99.53%","Batch 2026-03","Third-Party Lab","Longevity"],
+    ["Glow Blend",null,null,"Testides Lab","Longevity"],
+    ["KLOW Blend",null,null,"Third-Party Lab","Longevity"],
+    ["Epitalon",null,null,"Third-Party Lab","Longevity"],
+    ["NAD+",null,null,"Third-Party Lab","Longevity"],
+    ["Semax",null,null,"Third-Party Lab","Cognitive"],
+    ["Selank",null,null,"Third-Party Lab","Cognitive"]
   ];
-  const kv=(k,v)=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #f0f0f0"><span style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)">${k}</span><span style="font-size:13px;font-weight:600;text-align:right">${v}</span></div>`;
-  const card=([n,p,t,b,id])=>`
-    <div style="border:1px solid #e6e6e6;background:#fff;padding:22px 20px 18px">
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--papaya);font-weight:700;margin-bottom:12px">Third-Party Lab</div>
-      <div style="font-size:14px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;line-height:1.35;margin-bottom:12px;min-height:38px">${n}</div>
-      ${kv('Avg. Purity',p)}
-      ${kv('Type of Analysis',t)}
-      ${kv('Batch Number',b)}
-      <a href="/coa/${id}.jpg" target="_blank" rel="noopener" style="display:inline-block;margin-top:16px;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--papaya);font-weight:600;text-decoration:none">View Full Report &rarr;</a>
-    </div>`;
+  const detail=(k,v)=>`<div style="display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid #f2f2f2"><span style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)">${k}</span><span style="font-size:12px;font-weight:600;text-align:right">${v}</span></div>`;
+  const row=([n,p,b,lab,cat])=>{
+    const tested=!!p;
+    const purityCell=tested
+      ? `<span style="color:var(--papaya);font-weight:600;letter-spacing:.4px">${p}</span>`
+      : `<span style="color:var(--muted);font-weight:500;letter-spacing:.5px;font-size:10px;text-transform:uppercase">Report incoming</span>`;
+    const coaBtn=`<span style="display:inline-block;margin-top:18px;padding:10px 18px;border:1px solid #d9d9d9;background:#fafafa;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.9px;cursor:default;user-select:none">COA Report — Uploading Shortly</span>`;
+    return `<details>
+      <summary>
+        <span style="flex:1">${n}</span>
+        <span style="display:flex;align-items:center;gap:18px">${purityCell}<span class="pm">+</span></span>
+      </summary>
+      <div class="ans" style="max-width:520px">
+        ${detail('Category',cat)}
+        ${detail('Avg. Purity',tested?p:'Pending third-party report')}
+        ${detail('Type of Analysis','RP-HPLC · ESI-MS')}
+        ${detail('Batch',b||'Assigned at testing')}
+        ${detail('Testing Lab',lab)}
+        ${coaBtn}
+      </div>
+    </details>`;
+  };
   app.innerHTML = `
   <div class="info-wrap">
-    <div class="info-head"><h1>Certificate of Analysis</h1><p>Every compound is backed by an independent, third-party Certificate of Analysis, confirming its identity and purity by HPLC before it ships. Purity is verified batch by batch, and a signed COA accompanies every order.</p></div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:16px;margin-top:26px">
-      ${COA.map(card).join('')}
+    <div class="info-head"><h1>Certificate of Analysis</h1><p>Every compound is verified by an independent, third-party laboratory &mdash; identity and purity confirmed by reverse-phase HPLC and mass spectrometry before it ships. Purity is measured batch by batch, and a signed COA accompanies every order. Expand any compound to view its analysis; full report PDFs are being uploaded and will attach here shortly.</p></div>
+    <div class="faq" style="margin-top:26px">
+      ${ITEMS.map(row).join('')}
     </div>
     <div class="info-ruo" style="margin-top:34px"><b>Research Use Only.</b> Certificates of Analysis are provided for transparency. Products are supplied strictly for laboratory research and are not for human or animal consumption.</div>
   </div>`;
