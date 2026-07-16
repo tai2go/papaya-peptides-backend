@@ -341,6 +341,27 @@ app.get('/email-logo.png', (req, res) => res.sendFile(path.join(__dirname, 'emai
 app.use('/product-img', express.static(path.join(__dirname, 'product-img'), { maxAge: '7d' }));
 // third-party Certificate of Analysis reports (linked from the Lab Results page)
 app.use('/coa', express.static(path.join(__dirname, 'coa'), { maxAge: '7d' }));
+// ---------------- SEO: robots.txt + sitemap.xml ----------------
+const SITE_URL = 'https://papayapeps.com';
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').send(
+    `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\nDisallow: /checkout\n\nSitemap: ${SITE_URL}/sitemap.xml\n`
+  );
+});
+app.get('/sitemap.xml', (req, res) => {
+  const staticPaths = ['/', '/shop', '/calculator', '/faq', '/lab-results', '/contact', '/guides', '/refer', '/affiliates', '/terms', '/privacy'];
+  const slug = (c) => c.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const cats = [...new Set(PRODUCTS.map((p) => p.cat).filter(Boolean))].map((c) => '/shop/' + slug(c));
+  const prods = PRODUCTS.map((p) => '/product/' + p.id);
+  const urls = [...staticPaths, ...cats, ...prods];
+  const now = new Date().toISOString().slice(0, 10);
+  const body = urls.map((u) => {
+    const pr = u === '/' ? '1.0' : u.startsWith('/product/') ? '0.8' : '0.6';
+    return `  <url><loc>${SITE_URL}${u}</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>${pr}</priority></url>`;
+  }).join('\n');
+  res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>`);
+});
+
 // SPA routing: any non-API, non-file path serves the storefront (client router takes over)
 app.get(/^\/(?!api\/)[^.]*$/, (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
