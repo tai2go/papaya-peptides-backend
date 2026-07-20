@@ -87,7 +87,7 @@ async function notifyAffiliateAgent(o) {
         secret: process.env.AGENT_WEBHOOK_SECRET,
         order_id: o.orderNo,
         total_usd: o.total,          // store charges CAD; agent ledger is CAD throughout
-        code: o.referral || '',
+        code: o.referral || (o.discount && o.discount.code) || '',
         customer_hash: customerHash
       })
     });
@@ -122,7 +122,29 @@ app.get('/api/config', (req, res) => res.json({
   freeShippingOver: 150
 }));
 
-// Create an order. body: { items:[{id,qty}], customer:{...}, method:'etransfer', ruo:true }
+// Affiliate/partner discount codes live in the agent; the checkout asks us,
+// we ask the agent. Fails soft ({valid:false, unavailable:true}) so a down
+// agent never breaks the checkout page itself.
+async function checkPartnerCode(code) {
+  if (!process.env.AGENT_URL || !code) return null;
+  try {
+    const r = await fetch(`${process.env.AGENT_URL}/api/codes/${encodeURIComponent(code)}`,
+                          { signal: AbortSignal.timeout(6000) });
+    return await r.json();
+  } catch (e) {
+    console.error('[code check]', e.message);
+    return null;
+  }
+}
+
+app.get('/api/validate-code/:code', async (req, res) => {
+  const v = await checkPartnerCode(String(req.params.code || '').trim());
+  if (!v) return res.json({ valid: false, unavailable: true });
+  res.json(v);
+});
+
+// Create an order. body: { items:[{id,qty}], customer:{...}, method:'etransfer', ruo:true,
+//                          discountCode?: partner code, referral?: ref code from ?ref= }
 app.post('/api/orders', async (req, res) => {
   try {
     const { items, customer, method, ruo, referral } = req.body || {};
@@ -140,15 +162,29 @@ app.post('/api/orders', async (req, res) => {
       line.push({ id: p.id, name: p.name, vial: p.vial, price: p.price, qty, discount: discountRate(qty, p), lineTotal: lineTotal(p, qty) });
     }
     const subtotal = line.reduce((s, l) => s + l.lineTotal, 0);
-    const shipping = shippingFor(subtotal);
+
+    // Partner discount code: validated server-side against the agent, applied
+    // to the post-bundle subtotal. Shipping threshold and tax follow the
+    // discounted subtotal (FAQ: free shipping is based on subtotal after discounts).
+    let discount = null;
+    const codeRaw = String((req.body || {}).discountCode || '').trim();
+    if (codeRaw) {
+      const v = await checkPartnerCode(codeRaw);
+      if (!v) return res.status(503).json({ error: 'We could not verify your discount code right now — try again in a minute or remove the code.' });
+      if (!v.valid) return res.status(400).json({ error: 'That discount code is not recognized — check it or remove it.' });
+      discount = { code: v.code, pct: v.pct, amount: Math.round(subtotal * v.pct / 100) };
+    }
+    const discountedSubtotal = subtotal - (discount ? discount.amount : 0);
+    const shipping = shippingFor(discountedSubtotal);
     const province = (customer && customer.state) || '';
-    const tax = taxFor(subtotal, province);
-    const total = subtotal + shipping + tax;
+    const tax = taxFor(discountedSubtotal, province);
+    const total = discountedSubtotal + shipping + tax;
 
     const order = {
       orderNo: orderNo(), createdAt: Date.now(), updatedAt: Date.now(),
       status: 'pending_payment', method, currency: 'CAD',
-      items: line, subtotal, shipping, tax, total, referral: (referral || ''),
+      items: line, subtotal, discount, shipping, tax, total,
+      referral: (referral || (discount ? discount.code : '')),
       customer: {
         email: String(customer.email).trim(), phone: customer.phone || '',
         firstName: customer.firstName || '', lastName: customer.lastName || '',
