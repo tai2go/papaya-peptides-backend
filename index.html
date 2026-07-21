@@ -96,6 +96,8 @@ header{position:fixed;top:0;left:0;right:0;z-index:1000;background:#fff;}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:36px 20px;}
 .tile{cursor:pointer;}
 .tile-img{aspect-ratio:3/4;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.plp .tile-img{aspect-ratio:auto;height:230px;align-items:center;}
+.plp .grid{align-content:start;}
 .tile-img svg{width:64%;height:90%;transition:transform .35s ease;}
 .tile:hover .tile-img svg{transform:scale(1.04);}
 .tile-info{padding-top:11px;}
