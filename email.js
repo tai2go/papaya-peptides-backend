@@ -4,6 +4,7 @@
 // rules, muted greys, and the papaya accent used sparingly — so the emails feel seamless
 // with papayapeps.com.
 import nodemailer from 'nodemailer';
+import { fileURLToPath } from 'url';
 import { TAX_RATES } from './products.js';
 
 let transport = null;
@@ -18,7 +19,8 @@ if (process.env.SMTP_HOST && process.env.SMTP_USER) {
 
 const FROM = process.env.MAIL_FROM || 'Papaya Peptides <pay@papayapeps.com>';
 const STORE = process.env.STORE_NAME || 'Papaya Peptides';
-const IMG_BASE = process.env.PUBLIC_URL || 'https://papayapeps.com';
+const IMG_BASE = (process.env.EMAIL_ASSET_BASE || process.env.PUBLIC_URL || 'https://papayapeps.com').replace(/\/+$/, '');
+const LOGO_PATH = fileURLToPath(new URL('./email-logo.png', import.meta.url));
 const PAPAYA = '#E8731C';
 const INK = '#000000';
 const MUTED = '#767676';
@@ -28,7 +30,8 @@ const PAYMENTS_EMAIL = process.env.PAYMENTS_EMAIL || 'pay@papayapeps.com';
 
 async function send(to, subject, html) {
   if (!transport || !to) { console.log(`[email skipped] ${subject} -> ${to || 'no-address'}`); return; }
-  try { await transport.sendMail({ from: FROM, to, subject, html }); }
+  try { await transport.sendMail({ from: FROM, to, subject, html,
+    attachments: [{ filename: 'email-logo.png', path: LOGO_PATH, cid: 'papayalogo' }] }); }
   catch (e) { console.error('[email error]', e.message); }
 }
 
@@ -42,7 +45,7 @@ const wrap = (body) => `<div style="margin:0;padding:0;background:#ffffff">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:544px;font-family:${FONT};color:${INK};letter-spacing:.2px">
         <tr><td align="center" style="padding-bottom:22px;border-bottom:1px solid ${INK}">
           <table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr>
-            <td style="vertical-align:middle;padding-right:14px"><img src="${IMG_BASE}/email-logo.png" alt="" width="40" height="50" style="width:40px;height:50px;display:block"></td>
+            <td style="vertical-align:middle;padding-right:14px"><img src="cid:papayalogo" alt="Papaya Peptides" width="40" height="50" style="width:40px;height:50px;display:block"></td>
             <td style="vertical-align:middle"><div style="font-size:19px;text-transform:uppercase;letter-spacing:3px;font-weight:500">${STORE}</div></td>
           </tr></table>
         </td></tr>

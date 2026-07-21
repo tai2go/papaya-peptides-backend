@@ -56,7 +56,7 @@ button:hover{opacity:.85}
 
 <div id="app" style="display:none">
   <div id="detected"></div>
-  <div class="bar"><h1>Orders</h1><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><input type="date" id="fFrom" onchange="load()" title="From date" style="padding:6px;border:1px solid #ccc"><input type="date" id="fTo" onchange="load()" title="To date" style="padding:6px;border:1px solid #ccc"><input id="fSearch" oninput="load()" placeholder="Search email / order #" style="padding:7px;border:1px solid #ccc;width:180px"><button class="sec" onclick="clearFilters()">Clear</button><button class="sec" onclick="load()">Refresh</button> <button class="sec" onclick="logout()">Sign out</button></div></div>
+  <div class="bar"><h1>Orders</h1><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><input type="date" id="fFrom" onchange="filterOrders()" title="From date" style="padding:6px;border:1px solid #ccc"><input type="date" id="fTo" onchange="filterOrders()" title="To date" style="padding:6px;border:1px solid #ccc"><input id="fSearch" oninput="filterOrders()" placeholder="Search email / order #" style="padding:7px;border:1px solid #ccc;width:180px"><button class="sec" onclick="clearFilters()">Clear</button><button class="sec" onclick="load()">Refresh</button> <button class="sec" onclick="logout()">Sign out</button></div></div>
   <div id="list"></div>
   <div class="bar" style="margin-top:34px"><h1>Leads</h1><div>
     <button class="sec" onclick="loadLeads('affiliates')">Affiliates</button>
@@ -84,13 +84,19 @@ function logout(){ sessionStorage.removeItem('pp_admin'); location.reload(); }
 
 const STATUSES = ['pending_payment','paid','processing','shipped','out_for_delivery','delivered','cancelled'];
 
+let ALL_ORDERS = [];
 async function load(){
   loadDetected();
   const r = await api('/orders'); if(!r.ok){ $('list').innerHTML='<div class="empty">Error loading.</div>'; return; }
   let orders = await r.json();
-  if(!orders.length){ $('list').innerHTML='<div class="empty">No orders yet.</div>'; return; }
-  orders = applyFilters(orders);
-  if(!orders.length){ $('list').innerHTML='<div class="empty">No orders match your filters.</div>'; return; }
+  orders.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));   // newest first
+  ALL_ORDERS = orders;
+  renderOrders(orders);                                    // show ALL orders first
+}
+function filterOrders(){ renderOrders(applyFilters(ALL_ORDERS)); }   // narrow the already-shown list
+function renderOrders(orders){
+  if(!ALL_ORDERS.length){ $('list').innerHTML='<div class="empty">No orders yet.</div>'; return; }
+  if(!orders.length){ $('list').innerHTML='<div class="empty">No orders match your filters. <a href="#" onclick="clearFilters();return false;">Clear filters</a></div>'; return; }
   $('list').innerHTML = orders.map(o=>{
     const c=o.customer||{};
     return `<div class="order">
@@ -169,7 +175,7 @@ function applyFilters(list){
     return true;
   });
 }
-function clearFilters(){ $('fFrom').value=''; $('fTo').value=''; $('fSearch').value=''; load(); }
+function clearFilters(){ $('fFrom').value=''; $('fTo').value=''; $('fSearch').value=''; filterOrders(); }
 async function setStatus(no){ const s=$('st-'+no).value; await api('/orders/'+no+'/status',{method:'POST',body:JSON.stringify({status:s})}); load(); }
 async function setTracking(no){ await api('/orders/'+no+'/tracking',{method:'POST',body:JSON.stringify({carrier:$('car-'+no).value,number:$('trk-'+no).value})}); load(); }
 </script>
