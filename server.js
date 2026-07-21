@@ -87,7 +87,7 @@ async function notifyAffiliateAgent(o) {
         secret: process.env.AGENT_WEBHOOK_SECRET,
         order_id: o.orderNo,
         total_usd: o.total,          // store charges CAD; agent ledger is CAD throughout
-        code: o.referral || (o.discount && o.discount.code) || '',
+        code: o.referral || '',
         customer_hash: customerHash
       })
     });
@@ -122,32 +122,13 @@ app.get('/api/config', (req, res) => res.json({
   freeShippingOver: 150
 }));
 
-// Affiliate/partner discount codes live in the agent; the checkout asks us,
-// we ask the agent. Fails soft ({valid:false, unavailable:true}) so a down
-// agent never breaks the checkout page itself.
-async function checkPartnerCode(code) {
-  if (!process.env.AGENT_URL || !code) return null;
-  try {
-    const r = await fetch(`${process.env.AGENT_URL}/api/codes/${encodeURIComponent(code)}`,
-                          { signal: AbortSignal.timeout(6000) });
-    return await r.json();
-  } catch (e) {
-    console.error('[code check]', e.message);
-    return null;
-  }
-}
-
-app.get('/api/validate-code/:code', async (req, res) => {
-  const v = await checkPartnerCode(String(req.params.code || '').trim());
-  if (!v) return res.json({ valid: false, unavailable: true });
-  res.json(v);
-});
-
-// Create an order. body: { items:[{id,qty}], customer:{...}, method:'etransfer', ruo:true,
-//                          discountCode?: partner code, referral?: ref code from ?ref= }
+// Create an order. body: { items:[{id,qty}], customer:{...}, method:'etransfer', ruo:true }
 app.post('/api/orders', async (req, res) => {
   try {
     const { items, customer, method, ruo, referral } = req.body || {};
+    const _ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || (req.socket && req.socket.remoteAddress) || '';
+    const _ua = req.get('user-agent') || '';
+    const _ref = req.get('referer') || req.get('referrer') || '';
     if (!ruo) return res.status(400).json({ error: 'You must accept the Research Use Only agreement.' });
     if (!Array.isArray(items) || !items.length) return res.status(400).json({ error: 'Your kit is empty.' });
     if (!customer || !customer.email || !customer.firstName) return res.status(400).json({ error: 'Name and email are required.' });
@@ -162,36 +143,23 @@ app.post('/api/orders', async (req, res) => {
       line.push({ id: p.id, name: p.name, vial: p.vial, price: p.price, qty, discount: discountRate(qty, p), lineTotal: lineTotal(p, qty) });
     }
     const subtotal = line.reduce((s, l) => s + l.lineTotal, 0);
-
-    // Partner discount code: validated server-side against the agent, applied
-    // to the post-bundle subtotal. Shipping threshold and tax follow the
-    // discounted subtotal (FAQ: free shipping is based on subtotal after discounts).
-    let discount = null;
-    const codeRaw = String((req.body || {}).discountCode || '').trim();
-    if (codeRaw) {
-      const v = await checkPartnerCode(codeRaw);
-      if (!v) return res.status(503).json({ error: 'We could not verify your discount code right now — try again in a minute or remove the code.' });
-      if (!v.valid) return res.status(400).json({ error: 'That discount code is not recognized — check it or remove it.' });
-      discount = { code: v.code, pct: v.pct, amount: Math.round(subtotal * v.pct / 100) };
-    }
-    const discountedSubtotal = subtotal - (discount ? discount.amount : 0);
-    const shipping = shippingFor(discountedSubtotal);
+    const shipping = shippingFor(subtotal);
     const province = (customer && customer.state) || '';
-    const tax = taxFor(discountedSubtotal, province);
-    const total = discountedSubtotal + shipping + tax;
+    const tax = taxFor(subtotal, province);
+    const total = subtotal + shipping + tax;
 
     const order = {
       orderNo: orderNo(), createdAt: Date.now(), updatedAt: Date.now(),
       status: 'pending_payment', method, currency: 'CAD',
-      items: line, subtotal, discount, shipping, tax, total,
-      referral: (referral || (discount ? discount.code : '')),
+      items: line, subtotal, shipping, tax, total, referral: (referral || ''),
       customer: {
         email: String(customer.email).trim(), phone: customer.phone || '',
         firstName: customer.firstName || '', lastName: customer.lastName || '',
         lab: customer.lab || '', address: customer.address || '', city: customer.city || '',
         zip: customer.zip || '', state: customer.state || '', country: customer.country || ''
       },
-      payment: {}, tracking: null, ruoConfirmed: true
+      payment: {}, tracking: null, ruoConfirmed: true,
+      meta: { ip: _ip, userAgent: _ua, referer: _ref }
     };
 
     const baseUrl = process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
@@ -301,7 +269,7 @@ app.post('/api/admin/orders/:orderNo/dismiss-detection', adminOnly, (req, res) =
 });
 // Update fulfillment status
 app.post('/api/admin/orders/:orderNo/status', adminOnly, (req, res) => {
-  const valid = ['paid', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'];
+  const valid = ['pending_payment', 'paid', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'];
   if (!valid.includes(req.body.status)) return res.status(400).json({ error: 'bad status' });
   const o = db.update(req.params.orderNo, { status: req.body.status });
   if (o && (req.body.status === 'shipped')) emailShipped(o).catch(() => {});
@@ -385,7 +353,7 @@ app.get('/robots.txt', (req, res) => {
   );
 });
 app.get('/sitemap.xml', (req, res) => {
-  const staticPaths = ['/', '/shop', '/calculator', '/faq', '/lab-results', '/contact', '/guides', '/refer', '/affiliates', '/terms', '/privacy'];
+  const staticPaths = ['/', '/shop', '/calculator', '/faq', '/lab-results', '/contact', '/refer', '/affiliates', '/terms', '/privacy'];
   const slug = (c) => c.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const cats = [...new Set(PRODUCTS.map((p) => p.cat).filter(Boolean))].map((c) => '/shop/' + slug(c));
   const prods = PRODUCTS.map((p) => '/product/' + p.id);

@@ -442,7 +442,7 @@ select.unit{appearance:none;-webkit-appearance:none;-moz-appearance:none;text-al
 @media(max-width:768px){ .pdp-slide{min-height:42vh;} .pdp-nav-arrow{width:32px;height:32px;font-size:16px;} .pdp-nav-prev{left:8px;} .pdp-nav-next{right:8px;} }
 .pillar{cursor:pointer;}
 .pillar-img{height:400px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.pillar-img img,.pillar-img .vimg{width:100%;height:100%;object-fit:contain;object-position:center bottom;transition:transform .4s ease;}
+.pillar-img img,.pillar-img .vimg{width:auto;height:230px;max-width:none;object-fit:contain;object-position:center bottom;transition:transform .4s ease;margin:auto auto 0;}
 .pillar-img svg{width:42%;}
 .pillar:hover .pillar-img img,.pillar:hover .pillar-img .vimg{transform:scale(1.03);}
 .pillar-cap{display:flex;align-items:baseline;justify-content:space-between;padding:14px 2px 0;gap:12px;}
@@ -452,7 +452,7 @@ select.unit{appearance:none;-webkit-appearance:none;-moz-appearance:none;text-al
 .subpillars{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;padding:0 26px;margin-bottom:78px;}
 .subtile{cursor:pointer;display:flex;flex-direction:column;}
 .subtile-img{height:150px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.subtile-img img,.subtile-img .vimg{width:100%;height:100%;object-fit:contain;object-position:center bottom;}
+.subtile-img img,.subtile-img .vimg{width:auto;height:130px;max-width:none;object-fit:contain;object-position:center bottom;margin:auto auto 0;}
 .subtile-img svg{width:30%;}
 .subtile-body{display:flex;align-items:baseline;justify-content:space-between;padding:12px 2px 0;gap:10px;}
 .subtile-body .pt{font-size:13px;text-transform:uppercase;letter-spacing:.3px;font-weight:500;}
@@ -565,11 +565,11 @@ select.unit{appearance:none;-webkit-appearance:none;-moz-appearance:none;text-al
 
 /* ---------- Vial: smaller, base almost touching the title (image untouched) ---------- */
 .tile-img{overflow:hidden;display:flex;align-items:flex-end;justify-content:center;}
-.tile-img .vimg{width:auto;max-width:88%;height:68%;object-fit:contain;object-position:bottom;transform-origin:50% 100%;transition:transform .35s ease;}
+.tile-img .vimg{width:auto;max-width:none;height:175px;object-fit:contain;object-position:bottom;transform-origin:50% 100%;transition:transform .35s ease;}
 .tile:hover .tile-img .vimg{transform:scale(1.03);}
 .tile-info{padding-top:6px;}
 .pdp-media{overflow:hidden;}
-.pdp-media .vimg{width:auto;max-width:40%;height:auto;max-height:34vh;object-fit:contain;object-position:center;}
+.pdp-media .vimg{width:auto;max-width:none;height:300px;object-fit:contain;object-position:center;}
 .pdp-media .boximg{max-width:76%;max-height:56vh;}
 @media(max-width:768px){.pdp-media .boximg{max-width:94%;max-height:48vh;}}
 .cart-thumb .vimg,.summary-item .th .vimg,.anc-thumb .vimg{object-fit:contain;object-position:center bottom;}
@@ -583,9 +583,9 @@ select.unit{appearance:none;-webkit-appearance:none;-moz-appearance:none;text-al
 .kb-link{font-size:11px;text-transform:uppercase;letter-spacing:.7px;cursor:pointer;border-bottom:1px solid #000;padding-bottom:3px;}
 .kb-link:hover{color:var(--papaya);border-color:var(--papaya);}
 .kitband-img{display:flex;justify-content:center;}
-.kitband-img .kimg{width:100%;max-width:430px;height:auto;display:block;}
+.kitband-img .kimg{width:430px;max-width:none;height:auto;display:block;}
 .pdp-media.has-kit{flex-direction:column;gap:30px;}
-.pdp-media .kimg-pdp{width:100%;max-width:72%;height:auto;display:block;}
+.pdp-media .kimg-pdp{width:340px;max-width:none;height:auto;display:block;}
 @media(max-width:760px){
   .kitband{grid-template-columns:1fr;gap:26px;padding:16px 22px 8px;text-align:center;}
   .kitband-copy{padding:0;}
@@ -1636,29 +1636,12 @@ function setQty(id,q){ if(q<=0)delete cart[id]; else cart[id]=q; saveCart(); upd
 function subtotal(){ return Object.entries(cart).reduce((s,[id,q])=>{ const p=PRODUCTS.find(x=>x.id===id); return p?s+lineTotal(p,q):s; },0); }
 function fullSubtotal(){ return Object.entries(cart).reduce((s,[id,q])=>{ const p=PRODUCTS.find(x=>x.id===id); return p?s+p.price*q:s; },0); }
 function bundleSavings(){ return fullSubtotal()-subtotal(); }
-/* Partner / affiliate discount code (validated server-side against the agent) */
-let promo=null; try{ promo=JSON.parse(localStorage.getItem('pp_promo')||'null'); }catch(e){}
-function promoSavings(){ return promo?Math.round(subtotal()*promo.pct/100):0; }
-function discountedSubtotal(){ return subtotal()-promoSavings(); }
-async function applyPromo(){
-  const el=document.getElementById('ck_promo'); const code=el?el.value.trim():'';
-  if(!code){ clearPromo(); return; }
-  try{
-    const r=await fetch('/api/validate-code/'+encodeURIComponent(code));
-    const d=await r.json();
-    if(d.valid){ promo={code:d.code,pct:d.pct}; try{localStorage.setItem('pp_promo',JSON.stringify(promo))}catch(e){}; toast('Code '+d.code+' applied — '+d.pct+'% off'); }
-    else if(d.unavailable){ toast('Could not check the code right now — please try again'); }
-    else { promo=null; try{localStorage.removeItem('pp_promo')}catch(e){}; toast("That code isn't recognized"); }
-  }catch(e){ toast('Could not check the code — please try again'); }
-  if(view==='checkout') renderCheckout();
-}
-function clearPromo(){ promo=null; try{localStorage.removeItem('pp_promo')}catch(e){}; if(view==='checkout')renderCheckout(); }
-function shippingCost(){ const s=discountedSubtotal(); return s===0?0:(s>=150?0:12); }
+function shippingCost(){ const s=subtotal(); return s===0?0:(s>=150?0:12); }
 const CA_PROV=[["ON","Ontario",13],["BC","British Columbia",12],["AB","Alberta",5],["QC","Quebec",14.975],["MB","Manitoba",12],["SK","Saskatchewan",11],["NS","Nova Scotia",14],["NB","New Brunswick",15],["NL","Newfoundland & Labrador",15],["PE","Prince Edward Island",15],["NT","Northwest Territories",5],["YT","Yukon",5],["NU","Nunavut",5]];
 let ckProv='ON';
 function taxRate(){ const r=CA_PROV.find(p=>p[0]===ckProv); return r?r[2]/100:0; }
-function orderTax(){ return Math.round(discountedSubtotal()*taxRate()); }
-function orderTotal(){ return discountedSubtotal()+shippingCost()+orderTax(); }
+function orderTax(){ return Math.round(subtotal()*taxRate()); }
+function orderTotal(){ return subtotal()+shippingCost()+orderTax(); }
 function updateCheckoutTax(){ const sel=document.getElementById('ck_state'); if(sel)ckProv=sel.value; const t=document.getElementById('ck_tax'),tot=document.getElementById('ck_total'),b=document.querySelector('.place-btn'); if(t)t.textContent=fmt(orderTax()); if(tot)tot.textContent=fmt(orderTotal()); if(b)b.textContent='Place Order — '+fmt(orderTotal()); }
 function renderCart(){
   const body=document.getElementById('cartBody'), foot=document.getElementById('cartFoot');
@@ -1736,10 +1719,6 @@ function renderCheckout(){
       <div class="pay-note">We currently ship within Canada only.</div>
       <h2>Payment</h2>
       ${BACKEND?`<div class="field-c full"><label>Payment Method</label><select id="ck_method"><option value="etransfer">Interac e-Transfer</option></select></div><div class="pay-note">After placing your order you'll see Interac e-Transfer instructions. Your order ships once payment is confirmed.</div>`:`<div class="pay-note">Demo storefront — no real payment is processed and no card details are collected. Placing the order generates a sample confirmation only.</div>`}
-      <h2>Partner / discount code</h2>
-      <div class="frow"><div class="field-c"><label>Code (optional)</label><input id="ck_promo" value="${promo?promo.code:''}" placeholder="Your partner's code"></div>
-        <div class="field-c" style="display:flex;align-items:flex-end"><button class="btn" type="button" onclick="applyPromo()">${promo?'Update code':'Apply code'}</button></div></div>
-      ${promo?`<div class="pay-note">Code <b>${promo.code}</b> applied — ${promo.pct}% off your subtotal. <a style="cursor:pointer;text-decoration:underline" onclick="clearPromo()">Remove</a></div>`:''}
       <label class="ck-checkbox"><input type="checkbox" id="ck_ruo" style="width:auto;margin-top:2px"> I confirm I am a qualified researcher of legal age and that these products are for laboratory research use only — not for human or animal consumption.</label>
       <button class="place-btn" onclick="placeOrder()">Place Order — ${fmt(orderTotal())}</button>
     </div>
@@ -1749,7 +1728,6 @@ function renderCheckout(){
         <div class="summary-item"><div class="th">${imgOrSVG(p)}</div><div class="meta"><div class="b">${p.name}</div><div class="n">${p.vial} · Qty ${q}${p.cat!=='Supplies'&&discountRate(q)?` · <span style="color:var(--papaya)">−${discountRate(q)*100}%</span>`:''}</div></div><div>${fmt(lineTotal(p,q))}</div></div>`; }).join('')}
       <div class="cart-line" style="margin-top:18px"><span class="mut up">Subtotal</span><span>${fmt(fullSubtotal())}</span></div>
       ${bundleSavings()>0?`<div class="cart-line"><span class="mut up">Bundle savings</span><span style="color:var(--papaya)">−${fmt(bundleSavings())}</span></div>`:''}
-      ${promo?`<div class="cart-line"><span class="mut up">Code ${promo.code}</span><span style="color:var(--papaya)">−${fmt(promoSavings())}</span></div>`:''}
       <div class="cart-line"><span class="mut up">Shipping</span><span>${ship===0?'Free':fmt(ship)}</span></div>
       <div class="cart-line"><span class="mut up">Est. GST/HST</span><span id="ck_tax">${fmt(orderTax())}</span></div>
       <div class="cart-line total"><span class="up">Total</span><span id="ck_total">${fmt(orderTotal())}</span></div>
@@ -1801,10 +1779,10 @@ async function placeOrder(){
     const method=(document.getElementById('ck_method')||{}).value||'etransfer';
     const btn=document.querySelector('.place-btn'); if(btn){ btn.disabled=true; btn.textContent='Processing…'; }
     try{
-      const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items,customer,method,ruo:true,discountCode:(promo?promo.code:''),referral:(function(){try{return localStorage.getItem('pp_ref')||(promo?promo.code:'')}catch(e){return promo?promo.code:''}})()})});
+      const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items,customer,method,ruo:true,referral:(function(){try{return localStorage.getItem('pp_ref')||''}catch(e){return''}})()})});
       const d=await r.json();
       if(!r.ok){ toast(d.error||'Order could not be placed'); if(btn){ btn.disabled=false; btn.textContent='Place Order'; } return; }
-      cart={}; saveCart(); updateCartCount(); promo=null; try{localStorage.removeItem('pp_promo')}catch(e){}
+      cart={}; saveCart(); updateCartCount();
       
       
       renderEtransferPage(d, fn, email);

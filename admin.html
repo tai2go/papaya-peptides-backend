@@ -34,6 +34,16 @@ button:hover{opacity:.85}
 .reqrow b{flex:1;font-size:14px}
 .cpy{background:#fff;color:#E8731C;border:1px solid #E8731C;padding:3px 10px;font-size:11px;border-radius:4px;letter-spacing:0}
 .reqnote{font-size:11px;color:#888;margin-top:9px;line-height:1.5}
+.confirm-wrap{margin-bottom:26px}
+.confirm-wrap h1{color:#2e7d46}
+.dcard{background:#f2f8f2;border:1px solid #cfe6d6;border-left:4px solid #3a9d5d;border-radius:6px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.dcard .info{font-size:12px}
+.dcard .info b{font-size:14px;letter-spacing:.5px}
+.dconf{font-size:10px;text-transform:uppercase;letter-spacing:.6px;padding:2px 7px;border-radius:20px;background:#2e7d46;color:#fff;margin-left:6px}
+.dconf.medium{background:#E8731C}
+.dcard .info .sub{color:#6b8a74;margin-top:3px}
+.dcard .acts{margin:0}
+.btn-green{background:#2e7d46}
 </style></head><body>
 
 <div id="login" class="login">
@@ -45,7 +55,8 @@ button:hover{opacity:.85}
 </div>
 
 <div id="app" style="display:none">
-  <div class="bar"><h1>Orders</h1><div><button class="sec" onclick="load()">Refresh</button> <button class="sec" onclick="logout()">Sign out</button></div></div>
+  <div id="detected"></div>
+  <div class="bar"><h1>Orders</h1><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><input type="date" id="fFrom" onchange="load()" title="From date" style="padding:6px;border:1px solid #ccc"><input type="date" id="fTo" onchange="load()" title="To date" style="padding:6px;border:1px solid #ccc"><input id="fSearch" oninput="load()" placeholder="Search email / order #" style="padding:7px;border:1px solid #ccc;width:180px"><button class="sec" onclick="clearFilters()">Clear</button><button class="sec" onclick="load()">Refresh</button> <button class="sec" onclick="logout()">Sign out</button></div></div>
   <div id="list"></div>
   <div class="bar" style="margin-top:34px"><h1>Leads</h1><div>
     <button class="sec" onclick="loadLeads('affiliates')">Affiliates</button>
@@ -71,12 +82,15 @@ async function doLogin(){
 }
 function logout(){ sessionStorage.removeItem('pp_admin'); location.reload(); }
 
-const STATUSES = ['paid','processing','shipped','out_for_delivery','delivered','cancelled'];
+const STATUSES = ['pending_payment','paid','processing','shipped','out_for_delivery','delivered','cancelled'];
 
 async function load(){
+  loadDetected();
   const r = await api('/orders'); if(!r.ok){ $('list').innerHTML='<div class="empty">Error loading.</div>'; return; }
-  const orders = await r.json();
+  let orders = await r.json();
   if(!orders.length){ $('list').innerHTML='<div class="empty">No orders yet.</div>'; return; }
+  orders = applyFilters(orders);
+  if(!orders.length){ $('list').innerHTML='<div class="empty">No orders match your filters.</div>'; return; }
   $('list').innerHTML = orders.map(o=>{
     const c=o.customer||{};
     return `<div class="order">
@@ -92,6 +106,7 @@ async function load(){
         </div>
         <div class="items">${o.items.map(i=>`<div>${i.qty} × ${i.name} <span class="muted">(${i.vial})</span> — ${money(i.lineTotal)}${i.discount?` <span class="muted">−${i.discount*100}%</span>`:''}</div>`).join('')}</div>
         <div class="muted">Subtotal ${money(o.subtotal)} · Shipping ${o.shipping?money(o.shipping):'Free'} · Tax ${money(o.tax||0)} · <b>Total ${money(o.total)}</b></div>
+        ${o.meta?`<div class="muted" style="margin-top:8px;font-size:11px;line-height:1.5"><b>Origin</b> · IP: ${o.meta.ip||'—'} · from: ${o.meta.referer||'—'}<br>${o.meta.userAgent||''}</div>`:`<div class="muted" style="margin-top:8px;font-size:11px">Origin: not recorded (placed before origin logging was added)</div>`}
         ${o.payment&&o.payment.hostedUrl?`<div style="margin-top:6px"><a href="${o.payment.hostedUrl}" target="_blank">Crypto checkout link</a></div>`:''}
         ${o.method==='etransfer'&&(o.status==='pending_payment'||o.status==='etransfer_pending')?`
         <div class="reqbox">
@@ -121,7 +136,40 @@ async function loadLeads(type){
   el.innerHTML=data.slice().reverse().map(d=>`<div class="order"><div class="top"><div><b>${d.name||d.email||d.code||''}</b> <span class="muted">${d.email||''}</span></div><div class="muted">${new Date(d.createdAt).toLocaleString()}</div></div>${d.code?`<div class="muted">Code: <b>${d.code}</b></div>`:''}${d.url?`<div class="muted">${d.url}</div>`:''}${d.message?`<div style="margin-top:6px">${d.message}</div>`:''}</div>`).join('');
 }
 function cpy(t,btn){ navigator.clipboard.writeText(String(t)).then(()=>{const o=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=o,1200);}); }
+async function loadDetected(){
+  let data=[];
+  try{ const r=await api('/payments/detected'); if(r.ok) data=await r.json(); }catch(e){}
+  const el=$('detected');
+  if(!data.length){ el.innerHTML=''; return; }
+  el.innerHTML=`<div class="confirm-wrap"><div class="bar"><h1>Payments to confirm (${data.length})</h1></div>`
+    + data.map(o=>{
+      const d=o.paymentDetected||{}; const c=o.customer||{};
+      return `<div class="dcard">
+        <div class="info">
+          <b>${o.orderNo}</b> <span class="dconf ${d.confidence||''}">${(d.confidence||'').toUpperCase()} MATCH</span><br>
+          <span>${money(o.total)} · ${c.firstName||''} ${c.lastName||''} · ${c.email||''}</span>
+          <div class="sub">Detected ${d.detectedAt?new Date(d.detectedAt).toLocaleString():''} — ${d.reason||''}. Please verify the deposit landed in your account before confirming.</div>
+        </div>
+        <div class="acts">
+          <button class="btn-green" onclick="confirmPay('${o.orderNo}')">Confirm &amp; send receipt</button>
+          <button class="sec" onclick="dismissDetection('${o.orderNo}')">Dismiss</button>
+        </div></div>`;
+    }).join('') + `</div>`;
+}
+async function confirmPay(no){ if(!confirm('Confirm payment for '+no+'? This marks it paid and emails the customer their confirmation.')) return; await api('/orders/'+no+'/mark-paid',{method:'POST'}); load(); }
+async function dismissDetection(no){ await api('/orders/'+no+'/dismiss-detection',{method:'POST'}); loadDetected(); }
 async function markPaid(no){ await api('/orders/'+no+'/mark-paid',{method:'POST'}); load(); }
+function applyFilters(list){
+  const from=$('fFrom').value, to=$('fTo').value, q=($('fSearch').value||'').toLowerCase().trim();
+  return list.filter(o=>{
+    const t=o.createdAt;
+    if(from && t < new Date(from+'T00:00:00').getTime()) return false;
+    if(to && t > new Date(to+'T23:59:59').getTime()) return false;
+    if(q){ const c=o.customer||{}; const hay=((o.orderNo||o.no||'')+' '+(c.email||'')+' '+(c.firstName||'')+' '+(c.lastName||'')).toLowerCase(); if(!hay.includes(q)) return false; }
+    return true;
+  });
+}
+function clearFilters(){ $('fFrom').value=''; $('fTo').value=''; $('fSearch').value=''; load(); }
 async function setStatus(no){ const s=$('st-'+no).value; await api('/orders/'+no+'/status',{method:'POST',body:JSON.stringify({status:s})}); load(); }
 async function setTracking(no){ await api('/orders/'+no+'/tracking',{method:'POST',body:JSON.stringify({carrier:$('car-'+no).value,number:$('trk-'+no).value})}); load(); }
 </script>

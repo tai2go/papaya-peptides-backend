@@ -142,20 +142,34 @@ export async function emailOrderReceived(order) {
   const orderBlock = `${label('Your Order')}${itemsTable(order)}${summary(order)}${details(order)}`;
 
   if (order.method === 'etransfer') {
+    const etEmail = process.env.ETRANSFER_EMAIL || PAYMENTS_EMAIL;
+    const etName = process.env.ETRANSFER_NAME || STORE;
+    const autodeposit = String(process.env.ETRANSFER_AUTODEPOSIT || 'true') === 'true';
+    const etQuestion = process.env.ETRANSFER_QUESTION || '';
+    const etAnswer = process.env.ETRANSFER_ANSWER || '';
+    const row = (k, v) => `<tr><td style="padding:5px 14px 5px 0;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:${MUTED};white-space:nowrap">${k}</td><td style="padding:5px 0;font-size:14px;color:${INK}"><b>${v}</b></td></tr>`;
+    const secRows = autodeposit ? '' : row('Security question', etQuestion || '\u2014') + row('Answer', etAnswer || '\u2014');
     const body = `
       <p style="margin:0 0 16px">Hi${first},</p>
-      <p style="margin:0 0 6px">Thank you for your order. Here's your summary:</p>
+      <p style="margin:0 0 6px">Thank you for your order. To complete it, please send an Interac e-Transfer using the details below. Your order ships within 24 hours of your payment landing.</p>
       ${orderBlock}
-      ${accent(PAPAYA, 'Payment Requested',
-        `We've sent an Interac e-Transfer request for <b>$${order.total} CAD</b> to <b>${order.customer.email}</b>. Look for a separate message from Interac or your own bank — it's on its way.`)}
-      ${label('To Pay, All You Have To Do Is')}
+      ${accent(PAPAYA, 'Send Your e-Transfer',
+        `<table role="presentation" cellpadding="0" cellspacing="0">
+          ${row('Send to (email)', etEmail)}
+          ${row('Recipient name', etName)}
+          ${row('Amount', '$' + order.total + ' CAD')}
+          ${row('Message / memo', order.orderNo)}
+          ${secRows}
+         </table>
+         ${autodeposit ? '<div style="margin-top:10px;font-size:12px;color:' + MUTED + '">Autodeposit is enabled \u2014 no security question needed.</div>' : ''}`)}
+      ${label('How To Send')}
       ${steps([
-        'Open the Interac e-Transfer request in your inbox or text messages.',
-        'Tap <b>Accept</b> to deposit the request.',
-        'Choose your bank and sign in — the payment links to your bank and completes automatically.'
+        'Open your banking app and choose <b>Interac e-Transfer \u2192 Send Money</b>.',
+        'Add <b>' + etEmail + '</b> as the recipient and send <b>$' + order.total + ' CAD</b>.',
+        'In the message / memo field, enter your order number <b>' + order.orderNo + '</b> so we can match your payment.'
       ])}
-      <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:${MUTED}">The request is for <b style="color:${INK}">$${order.total} CAD</b> with order <b style="color:${INK}">${order.orderNo}</b> as the reference. No security question — accepting through your bank is all that's needed. Once it clears, your order ships within 24 hours. Don't see it within a few minutes? Check your spam folder or reply here with your order number.</p>`;
-    await send(order.customer.email, `Your payment request is on its way · ${order.orderNo}`, wrap(body));
+      <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:${MUTED}">Please send exactly <b style="color:${INK}">$${order.total} CAD</b> and include <b style="color:${INK}">${order.orderNo}</b> in the memo. Once your e-Transfer is received we\u2019ll confirm it and ship within 24 hours. Questions? Just reply to this email with your order number.</p>`;
+    await send(order.customer.email, `Complete your order \u2014 send your e-Transfer \u00b7 ${order.orderNo}`, wrap(body));
     return;
   }
 
